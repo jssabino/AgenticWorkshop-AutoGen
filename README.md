@@ -10,7 +10,7 @@ This workshop is designed to provide a deep dive into AutoGen, Microsoft's power
 
 ## 📋 Prerequisites
 
-- .NET 8.0 SDK or later
+- .NET 9.0 SDK or later
 - Visual Studio Code or Visual Studio 2022
 - Basic knowledge of C# programming
 - OpenAI API key or Azure OpenAI Service access
