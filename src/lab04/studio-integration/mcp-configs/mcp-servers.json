@@ -1,0 +1,205 @@
+{
+  "name": "mcpServers",
+  "description": "Model Context Protocol server configurations for AutoGen Studio",
+  "version": "1.0",
+  "servers": {
+    "github": {
+      "name": "GitHub MCP Server",
+      "description": "Provides GitHub API access via Model Context Protocol",
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_token_here"
+      },
+      "settings": {
+        "port": 3000,
+        "host": "localhost",
+        "protocol": "http",
+        "timeout": 30000,
+        "retry_attempts": 3
+      },
+      "capabilities": {
+        "tools": [
+          "list_repositories",
+          "get_repository", 
+          "create_repository",
+          "list_issues",
+          "get_issue",
+          "create_issue",
+          "update_issue",
+          "list_pull_requests",
+          "get_pull_request",
+          "create_pull_request",
+          "get_pull_request_files",
+          "create_pull_request_review",
+          "get_file_contents",
+          "create_file",
+          "update_file",
+          "delete_file",
+          "list_branches",
+          "create_branch",
+          "get_commit",
+          "list_commits",
+          "search_repositories",
+          "search_issues",
+          "search_code"
+        ],
+        "resources": [
+          "repository_metadata",
+          "issue_templates",
+          "workflow_templates"
+        ]
+      },
+      "authentication": {
+        "type": "bearer_token",
+        "token_env": "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "scopes": [
+          "repo",
+          "issues",
+          "pull_requests",
+          "contents"
+        ]
+      },
+      "rate_limiting": {
+        "requests_per_hour": 5000,
+        "requests_per_minute": 100,
+        "concurrent_requests": 10
+      }
+    },
+    "slack": {
+      "name": "Slack MCP Server",
+      "description": "Provides Slack integration for notifications and communication",
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-slack"],
+      "env": {
+        "SLACK_BOT_TOKEN": "xoxb-your-slack-bot-token",
+        "SLACK_APP_TOKEN": "xapp-your-slack-app-token"
+      },
+      "settings": {
+        "port": 3001,
+        "host": "localhost",
+        "protocol": "http",
+        "timeout": 15000
+      },
+      "capabilities": {
+        "tools": [
+          "send_message",
+          "send_direct_message",
+          "create_channel",
+          "list_channels",
+          "get_channel_info",
+          "list_users",
+          "get_user_info",
+          "upload_file",
+          "schedule_message"
+        ]
+      },
+      "authentication": {
+        "type": "oauth",
+        "bot_token_env": "SLACK_BOT_TOKEN",
+        "app_token_env": "SLACK_APP_TOKEN"
+      }
+    },
+    "jira": {
+      "name": "Jira MCP Server",
+      "description": "Provides Jira integration for project management",
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-jira"],
+      "env": {
+        "JIRA_URL": "https://your-domain.atlassian.net",
+        "JIRA_EMAIL": "your-email@example.com",
+        "JIRA_API_TOKEN": "your_jira_api_token"
+      },
+      "settings": {
+        "port": 3002,
+        "host": "localhost",
+        "protocol": "http",
+        "timeout": 20000
+      },
+      "capabilities": {
+        "tools": [
+          "create_issue",
+          "get_issue",
+          "update_issue",
+          "search_issues",
+          "create_project",
+          "get_project",
+          "list_projects",
+          "create_sprint",
+          "get_sprint",
+          "add_comment"
+        ]
+      },
+      "authentication": {
+        "type": "basic_auth",
+        "username_env": "JIRA_EMAIL",
+        "token_env": "JIRA_API_TOKEN"
+      }
+    }
+  },
+  "global_settings": {
+    "connection_pool": {
+      "max_connections": 50,
+      "connection_timeout": 30,
+      "idle_timeout": 300
+    },
+    "logging": {
+      "level": "info",
+      "file": "./logs/mcp-servers.log",
+      "rotate": true,
+      "max_files": 10
+    },
+    "monitoring": {
+      "health_check_interval": 30,
+      "metrics_collection": true,
+      "alert_on_failure": true
+    },
+    "security": {
+      "validate_ssl": true,
+      "encrypt_tokens": true,
+      "rotate_tokens_weekly": false
+    }
+  },
+  "development": {
+    "mock_servers": {
+      "enabled": false,
+      "github_mock": {
+        "port": 3010,
+        "data_file": "./mocks/github-data.json"
+      }
+    },
+    "debugging": {
+      "verbose_logging": false,
+      "trace_requests": false,
+      "mock_responses": false
+    }
+  },
+  "production": {
+    "load_balancing": {
+      "enabled": false,
+      "strategy": "round_robin",
+      "health_checks": true
+    },
+    "failover": {
+      "enabled": true,
+      "backup_servers": ["backup-github-server"],
+      "failover_timeout": 5
+    },
+    "monitoring": {
+      "prometheus_metrics": true,
+      "grafana_dashboard": true,
+      "alert_manager": true
+    }
+  },
+  "startup_script": {
+    "linux_mac": "#!/bin/bash\n# Start all MCP servers\necho \"Starting GitHub MCP Server...\"\nnpx @modelcontextprotocol/server-github --port 3000 &\necho \"Starting Slack MCP Server...\"\nnpx @modelcontextprotocol/server-slack --port 3001 &\necho \"Starting Jira MCP Server...\"\nnpx @modelcontextprotocol/server-jira --port 3002 &\necho \"All MCP servers started\"",
+    "windows": "@echo off\nrem Start all MCP servers\necho Starting GitHub MCP Server...\nstart /B npx @modelcontextprotocol/server-github --port 3000\necho Starting Slack MCP Server...\nstart /B npx @modelcontextprotocol/server-slack --port 3001\necho Starting Jira MCP Server...\nstart /B npx @modelcontextprotocol/server-jira --port 3002\necho All MCP servers started"
+  },
+  "metadata": {
+    "created": "2025-01-01",
+    "author": "AutoGen Workshop - Lab 04",
+    "version": "1.0",
+    "description": "Comprehensive MCP server configuration for AutoGen Studio integration",
+    "tags": ["mcp", "autogen-studio", "github", "slack", "jira", "integration"]
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "name": "BillingSupport",
+  "type": "assistant",
+  "description": "Billing support specialist for handling payment and account-related inquiries",
+  "config": {
+    "model": "gpt-4",
+    "temperature": 0.2,
+    "max_tokens": 1000,
+    "system_message": "You are a billing support specialist responsible for handling payment and account-related inquiries. Your role is to:\n1. Assist with billing questions and payment issues\n2. Explain charges and billing cycles\n3. Process refunds and adjustments when appropriate\n4. Help with account upgrades and downgrades\n5. Resolve payment processing issues\n\nAlways verify customer identity before discussing account details. Be empathetic about billing concerns and provide clear explanations of charges and policies.",
+    "functions": [
+      {
+        "name": "lookup_account",
+        "description": "Look up customer account information",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "customer_id": {
+              "type": "string",
+              "description": "Customer account ID or email address"
+            },
+            "verification_method": {
+              "type": "string",
+              "enum": ["email", "phone", "security_question"],
+              "description": "Method used to verify customer identity"
+            }
+          },
+          "required": ["customer_id", "verification_method"]
+        }
+      },
+      {
+        "name": "process_refund",
+        "description": "Process refund requests",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "number",
+              "description": "Refund amount in dollars"
+            },
+            "reason": {
+              "type": "string",
+              "description": "Reason for the refund"
+            },
+            "approval_needed": {
+              "type": "boolean",
+              "description": "Whether manager approval is required"
+            }
+          },
+          "required": ["amount", "reason"]
+        }
+      },
+      {
+        "name": "update_payment_method",
+        "description": "Help customer update payment information",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "payment_type": {
+              "type": "string",
+              "enum": ["credit_card", "debit_card", "bank_transfer", "paypal"],
+              "description": "Type of payment method"
+            },
+            "auto_pay": {
+              "type": "boolean",
+              "description": "Whether to enable automatic payments"
+            }
+          },
+          "required": ["payment_type"]
+        }
+      }
+    ]
+  },
+  "metadata": {
+    "version": "1.0",
+    "created": "2025-01-01",
+    "author": "AutoGen Workshop",
+    "tags": ["billing", "payments", "accounts"]
+  }
+}

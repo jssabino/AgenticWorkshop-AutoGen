@@ -1,0 +1,183 @@
+{
+  "name": "CodeReviewAgent",
+  "type": "assistant",
+  "description": "Agent specialized in performing automated code reviews for GitHub pull requests using MCP integration",
+  "config": {
+    "model": "gpt-4",
+    "temperature": 0.3,
+    "max_tokens": 2500,
+    "system_message": "You are an expert code review agent with access to GitHub MCP tools. Your role is to:\n1. Perform comprehensive code reviews for pull requests\n2. Analyze code quality, security, and performance implications\n3. Provide constructive feedback and improvement suggestions\n4. Ensure adherence to coding standards and best practices\n5. Generate detailed review reports with actionable recommendations\n\nAlways be thorough but constructive in your reviews. Focus on code quality, maintainability, security, and performance. Provide specific examples and suggestions for improvement.",
+    "mcp_integration": {
+      "enabled": true,
+      "server": "github",
+      "tools": [
+        "list_pull_requests",
+        "get_pull_request",
+        "get_pull_request_files",
+        "create_pull_request_review",
+        "create_review_comment",
+        "get_file_contents"
+      ]
+    },
+    "functions": [
+      {
+        "name": "review_pull_request",
+        "description": "Perform a comprehensive review of a pull request",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Repository name in format owner/repo"
+            },
+            "pull_number": {
+              "type": "integer",
+              "description": "Pull request number to review"
+            },
+            "review_type": {
+              "type": "string",
+              "enum": ["full", "security", "performance", "style"],
+              "default": "full",
+              "description": "Type of review to perform"
+            }
+          },
+          "required": ["repository", "pull_number"]
+        },
+        "mcp_tool": "get_pull_request"
+      },
+      {
+        "name": "analyze_code_changes",
+        "description": "Analyze the specific code changes in a pull request",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Repository name in format owner/repo"
+            },
+            "pull_number": {
+              "type": "integer",
+              "description": "Pull request number"
+            },
+            "focus_areas": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": ["security", "performance", "maintainability", "testing", "documentation"]
+              },
+              "description": "Specific areas to focus the analysis on"
+            }
+          },
+          "required": ["repository", "pull_number"]
+        },
+        "mcp_tool": "get_pull_request_files"
+      },
+      {
+        "name": "submit_code_review",
+        "description": "Submit a formal code review with comments and decision",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Repository name in format owner/repo"
+            },
+            "pull_number": {
+              "type": "integer",
+              "description": "Pull request number"
+            },
+            "review_decision": {
+              "type": "string",
+              "enum": ["approve", "request_changes", "comment"],
+              "description": "Review decision"
+            },
+            "review_body": {
+              "type": "string",
+              "description": "Main review comment body"
+            },
+            "line_comments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "path": {"type": "string"},
+                  "line": {"type": "integer"},
+                  "comment": {"type": "string"}
+                }
+              },
+              "description": "Line-specific comments"
+            }
+          },
+          "required": ["repository", "pull_number", "review_decision", "review_body"]
+        },
+        "mcp_tool": "create_pull_request_review"
+      },
+      {
+        "name": "check_code_quality",
+        "description": "Check code quality metrics and standards compliance",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Repository name in format owner/repo"
+            },
+            "files": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Specific files to check (optional)"
+            },
+            "standards": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Coding standards to check against"
+            }
+          },
+          "required": ["repository"]
+        },
+        "mcp_tool": "get_file_contents"
+      }
+    ]
+  },
+  "review_criteria": {
+    "code_quality": {
+      "readability": "Code should be clear, well-commented, and follow naming conventions",
+      "maintainability": "Code should be modular, reusable, and easy to modify",
+      "complexity": "Code should avoid unnecessary complexity and be well-structured",
+      "documentation": "Public APIs and complex logic should be documented"
+    },
+    "security": {
+      "input_validation": "All user inputs should be validated and sanitized",
+      "authentication": "Authentication and authorization should be properly implemented",
+      "data_exposure": "Sensitive data should not be exposed in logs or responses",
+      "dependencies": "Dependencies should be up-to-date and secure"
+    },
+    "performance": {
+      "efficiency": "Code should use efficient algorithms and data structures",
+      "resource_usage": "Memory and CPU usage should be optimized",
+      "scalability": "Code should handle increased load gracefully",
+      "caching": "Appropriate caching strategies should be implemented"
+    },
+    "testing": {
+      "coverage": "New code should have appropriate test coverage",
+      "test_quality": "Tests should be meaningful and comprehensive",
+      "edge_cases": "Edge cases and error conditions should be tested",
+      "integration": "Integration tests should cover critical paths"
+    }
+  },
+  "metadata": {
+    "version": "1.0",
+    "created": "2025-01-01",
+    "author": "AutoGen Workshop - Lab 04",
+    "tags": ["github", "mcp", "code-review", "quality-assurance", "automation"],
+    "requirements": {
+      "mcp_servers": ["github"],
+      "api_access": ["github_token"],
+      "permissions": ["pull_requests:write", "pull_requests:read", "contents:read"]
+    }
+  }
+}

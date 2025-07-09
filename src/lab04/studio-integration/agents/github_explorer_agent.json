@@ -1,0 +1,94 @@
+{
+  "name": "GitHubExplorerAgent",
+  "type": "assistant",
+  "description": "Agent specialized in exploring and analyzing GitHub repositories using MCP integration",
+  "config": {
+    "model": "gpt-4",
+    "temperature": 0.7,
+    "max_tokens": 2000,
+    "system_message": "You are a GitHub repository explorer agent with access to GitHub MCP tools. Your role is to:\n1. Analyze repository structures, code quality, and development patterns\n2. Provide insights about technology stacks and project organization\n3. Identify potential improvements and best practices\n4. Generate comprehensive repository reports\n5. Help teams understand their codebase better\n\nUse your GitHub MCP tools to gather detailed information and provide actionable insights. Always be thorough and specific in your analysis.",
+    "mcp_integration": {
+      "enabled": true,
+      "server": "github",
+      "tools": [
+        "list_repositories",
+        "get_repository",
+        "get_file_contents",
+        "list_commits",
+        "list_branches",
+        "search_code"
+      ]
+    },
+    "functions": [
+      {
+        "name": "explore_repository",
+        "description": "Explore and analyze a GitHub repository comprehensively",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Repository name in format owner/repo"
+            },
+            "analysis_depth": {
+              "type": "string",
+              "enum": ["basic", "detailed", "comprehensive"],
+              "description": "Depth of analysis to perform"
+            }
+          },
+          "required": ["repository"]
+        },
+        "mcp_tool": "get_repository"
+      },
+      {
+        "name": "analyze_code_structure",
+        "description": "Analyze the code structure and organization of a repository",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Repository name in format owner/repo"
+            },
+            "path": {
+              "type": "string",
+              "description": "Specific path to analyze (optional)"
+            }
+          },
+          "required": ["repository"]
+        },
+        "mcp_tool": "get_file_contents"
+      },
+      {
+        "name": "review_development_activity",
+        "description": "Review recent development activity and patterns",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Repository name in format owner/repo"
+            },
+            "timeframe": {
+              "type": "string",
+              "enum": ["week", "month", "quarter", "year"],
+              "description": "Timeframe for activity analysis"
+            }
+          },
+          "required": ["repository"]
+        },
+        "mcp_tool": "list_commits"
+      }
+    ]
+  },
+  "metadata": {
+    "version": "1.0",
+    "created": "2025-01-01",
+    "author": "AutoGen Workshop - Lab 04",
+    "tags": ["github", "mcp", "repository-analysis", "code-exploration"],
+    "requirements": {
+      "mcp_servers": ["github"],
+      "api_access": ["github_token"]
+    }
+  }
+}

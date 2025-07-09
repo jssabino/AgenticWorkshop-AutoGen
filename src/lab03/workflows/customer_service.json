@@ -1,0 +1,106 @@
+{
+  "name": "CustomerServiceWorkflow",
+  "description": "Multi-agent customer service workflow with intelligent routing and escalation",
+  "version": "1.0",
+  "agents": [
+    {
+      "id": "intake",
+      "name": "IntakeAgent",
+      "config_path": "./agents/intake_agent.json",
+      "role": "entry_point"
+    },
+    {
+      "id": "technical",
+      "name": "TechnicalSupport",
+      "config_path": "./agents/technical_support.json",
+      "role": "specialist"
+    },
+    {
+      "id": "billing",
+      "name": "BillingSupport",
+      "config_path": "./agents/billing_support.json",
+      "role": "specialist"
+    },
+    {
+      "id": "manager",
+      "name": "SupportManager",
+      "config_path": "./agents/manager.json",
+      "role": "escalation"
+    }
+  ],
+  "workflow": {
+    "start_agent": "intake",
+    "routing_rules": [
+      {
+        "from": "intake",
+        "to": "technical",
+        "condition": {
+          "type": "function_result",
+          "function": "categorize_issue",
+          "field": "category",
+          "value": "technical"
+        },
+        "description": "Route technical issues to technical support"
+      },
+      {
+        "from": "intake",
+        "to": "billing",
+        "condition": {
+          "type": "function_result",
+          "function": "categorize_issue",
+          "field": "category",
+          "value": "billing"
+        },
+        "description": "Route billing issues to billing support"
+      },
+      {
+        "from": "technical",
+        "to": "manager",
+        "condition": {
+          "type": "function_call",
+          "function": "escalate_to_engineer"
+        },
+        "description": "Escalate complex technical issues to manager"
+      },
+      {
+        "from": "billing",
+        "to": "manager",
+        "condition": {
+          "type": "function_result",
+          "function": "process_refund",
+          "field": "approval_needed",
+          "value": true
+        },
+        "description": "Escalate refund requests requiring approval"
+      }
+    ],
+    "termination_conditions": [
+      {
+        "type": "message_contains",
+        "patterns": ["issue resolved", "thank you", "goodbye"],
+        "description": "End conversation when issue is resolved"
+      },
+      {
+        "type": "max_turns",
+        "value": 20,
+        "description": "Maximum conversation length"
+      },
+      {
+        "type": "escalation_complete",
+        "description": "End after escalation to executive team"
+      }
+    ]
+  },
+  "settings": {
+    "max_conversation_turns": 20,
+    "timeout_minutes": 30,
+    "auto_escalation_enabled": true,
+    "conversation_summary_enabled": true,
+    "logging_enabled": true
+  },
+  "metadata": {
+    "created": "2025-01-01",
+    "author": "AutoGen Workshop",
+    "tags": ["customer-service", "multi-agent", "routing"]
+  }
+}

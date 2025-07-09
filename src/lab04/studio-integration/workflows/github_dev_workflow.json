@@ -1,0 +1,263 @@
+{
+  "name": "GitHubDevWorkflow",
+  "description": "Comprehensive GitHub development workflow with MCP-enabled agents",
+  "version": "2.0",
+  "agents": [
+    {
+      "id": "explorer",
+      "name": "GitHubExplorerAgent",
+      "config_path": "./agents/github_explorer_agent.json",
+      "role": "repository_analysis"
+    },
+    {
+      "id": "triage",
+      "name": "IssueTriageAgent", 
+      "config_path": "./agents/issue_triage_agent.json",
+      "role": "issue_management"
+    },
+    {
+      "id": "reviewer",
+      "name": "CodeReviewAgent",
+      "config_path": "./agents/code_review_agent.json",
+      "role": "code_quality"
+    },
+    {
+      "id": "coordinator",
+      "name": "WorkflowCoordinator",
+      "config": {
+        "model": "gpt-4",
+        "temperature": 0.6,
+        "max_tokens": 1500,
+        "system_message": "You are a workflow coordinator that orchestrates development activities across multiple GitHub repositories. You coordinate between repository analysis, issue management, and code review activities to ensure smooth development workflows."
+      },
+      "role": "orchestration"
+    }
+  ],
+  "workflow": {
+    "entry_points": [
+      {
+        "trigger": "new_repository",
+        "agent": "explorer",
+        "action": "analyze_repository_structure"
+      },
+      {
+        "trigger": "new_issue",
+        "agent": "triage",
+        "action": "triage_new_issues"
+      },
+      {
+        "trigger": "new_pull_request",
+        "agent": "reviewer",
+        "action": "review_pull_request"
+      }
+    ],
+    "flows": [
+      {
+        "name": "repository_onboarding",
+        "description": "Complete onboarding flow for new repositories",
+        "steps": [
+          {
+            "agent": "explorer",
+            "action": "explore_repository",
+            "output": "repository_analysis"
+          },
+          {
+            "agent": "triage",
+            "action": "analyze_existing_issues", 
+            "input": "repository_analysis",
+            "output": "issue_assessment"
+          },
+          {
+            "agent": "coordinator",
+            "action": "create_onboarding_report",
+            "input": ["repository_analysis", "issue_assessment"],
+            "output": "onboarding_summary"
+          }
+        ]
+      },
+      {
+        "name": "issue_lifecycle",
+        "description": "Complete issue management from creation to resolution",
+        "steps": [
+          {
+            "agent": "triage",
+            "action": "triage_new_issues",
+            "output": "triage_decisions"
+          },
+          {
+            "agent": "explorer",
+            "action": "analyze_code_context",
+            "input": "triage_decisions",
+            "output": "code_context",
+            "condition": {
+              "type": "issue_type",
+              "value": "bug"
+            }
+          },
+          {
+            "agent": "coordinator",
+            "action": "assign_and_prioritize",
+            "input": ["triage_decisions", "code_context"],
+            "output": "assignment_plan"
+          }
+        ]
+      },
+      {
+        "name": "code_review_process",
+        "description": "Comprehensive code review workflow",
+        "steps": [
+          {
+            "agent": "reviewer",
+            "action": "analyze_code_changes",
+            "output": "change_analysis"
+          },
+          {
+            "agent": "explorer",
+            "action": "check_impact_scope",
+            "input": "change_analysis",
+            "output": "impact_assessment"
+          },
+          {
+            "agent": "reviewer",
+            "action": "submit_code_review",
+            "input": ["change_analysis", "impact_assessment"],
+            "output": "review_decision"
+          },
+          {
+            "agent": "coordinator",
+            "action": "coordinate_follow_up",
+            "input": "review_decision",
+            "output": "follow_up_plan",
+            "condition": {
+              "type": "review_decision",
+              "value": "request_changes"
+            }
+          }
+        ]
+      }
+    ],
+    "parallel_flows": [
+      {
+        "name": "repository_monitoring",
+        "description": "Continuous monitoring of repository health",
+        "agents": ["explorer", "triage"],
+        "schedule": "daily",
+        "actions": [
+          "monitor_repository_activity",
+          "check_issue_backlog",
+          "assess_code_quality_trends"
+        ]
+      }
+    ]
+  },
+  "mcp_configuration": {
+    "required_servers": ["github"],
+    "connection_settings": {
+      "timeout": 30,
+      "retry_attempts": 3,
+      "rate_limiting": {
+        "requests_per_minute": 5000,
+        "concurrent_requests": 10
+      }
+    },
+    "authentication": {
+      "github": {
+        "token_source": "environment",
+        "token_key": "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "scopes": ["repo", "issues", "pull_requests", "contents"]
+      }
+    }
+  },
+  "triggers": {
+    "webhooks": [
+      {
+        "event": "repository.created",
+        "workflow": "repository_onboarding"
+      },
+      {
+        "event": "issues.opened",
+        "workflow": "issue_lifecycle"
+      },
+      {
+        "event": "pull_request.opened",
+        "workflow": "code_review_process"
+      },
+      {
+        "event": "push",
+        "workflow": "code_quality_check",
+        "condition": {
+          "branch": "main"
+        }
+      }
+    ],
+    "scheduled": [
+      {
+        "schedule": "0 9 * * MON",
+        "workflow": "weekly_repository_health_check"
+      },
+      {
+        "schedule": "0 0 * * *",
+        "workflow": "daily_issue_cleanup"
+      }
+    ]
+  },
+  "reporting": {
+    "enabled": true,
+    "formats": ["json", "markdown", "email"],
+    "destinations": [
+      {
+        "type": "github_issue",
+        "repository": "team/reports",
+        "label": "workflow-report"
+      },
+      {
+        "type": "slack",
+        "channel": "#dev-team",
+        "mention_on_critical": true
+      }
+    ],
+    "metrics": [
+      "issues_triaged",
+      "pull_requests_reviewed", 
+      "repositories_analyzed",
+      "workflow_execution_time",
+      "tool_usage_statistics"
+    ]
+  },
+  "error_handling": {
+    "retry_strategies": {
+      "network_errors": {
+        "max_retries": 3,
+        "backoff_strategy": "exponential",
+        "base_delay": 1
+      },
+      "rate_limit_errors": {
+        "max_retries": 5,
+        "backoff_strategy": "linear",
+        "base_delay": 60
+      }
+    },
+    "fallback_actions": [
+      {
+        "condition": "mcp_server_unavailable",
+        "action": "switch_to_backup_server"
+      },
+      {
+        "condition": "authentication_failure",
+        "action": "notify_admin_and_pause"
+      }
+    ]
+  },
+  "metadata": {
+    "created": "2025-01-01",
+    "author": "AutoGen Workshop - Lab 04",
+    "version": "2.0",
+    "tags": ["github", "mcp", "development-workflow", "automation", "multi-agent"],
+    "requirements": {
+      "autogen_studio": ">=0.4.0",
+      "mcp_servers": ["github"],
+      "api_access": ["github_token"],
+      "permissions": ["repo", "issues", "pull_requests"]
+    }
+  }
+}

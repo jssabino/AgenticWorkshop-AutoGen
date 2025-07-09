@@ -1,0 +1,161 @@
+{
+  "name": "IssueTriageAgent",
+  "type": "assistant",
+  "description": "Agent specialized in triaging and managing GitHub issues using MCP integration",
+  "config": {
+    "model": "gpt-4",
+    "temperature": 0.5,
+    "max_tokens": 1500,
+    "system_message": "You are an intelligent issue triage agent with access to GitHub MCP tools. Your responsibilities include:\n1. Analyzing incoming GitHub issues for proper categorization\n2. Assigning appropriate labels, priorities, and team members\n3. Identifying duplicate or related issues\n4. Creating comprehensive triage reports\n5. Automating issue management workflows\n\nAlways provide clear, actionable triage decisions with detailed justifications. Consider project context, team capacity, and business priorities when making recommendations.",
+    "mcp_integration": {
+      "enabled": true,
+      "server": "github",
+      "tools": [
+        "list_issues",
+        "get_issue",
+        "create_issue",
+        "update_issue",
+        "add_labels",
+        "assign_issue"
+      ]
+    },
+    "functions": [
+      {
+        "name": "triage_new_issues",
+        "description": "Triage newly created issues in a repository",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Repository name in format owner/repo"
+            },
+            "state": {
+              "type": "string",
+              "enum": ["open", "closed", "all"],
+              "default": "open",
+              "description": "Issue state to filter"
+            },
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Specific labels to filter issues"
+            }
+          },
+          "required": ["repository"]
+        },
+        "mcp_tool": "list_issues"
+      },
+      {
+        "name": "analyze_issue_content",
+        "description": "Analyze the content of a specific issue for triage",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Repository name in format owner/repo"
+            },
+            "issue_number": {
+              "type": "integer",
+              "description": "Issue number to analyze"
+            }
+          },
+          "required": ["repository", "issue_number"]
+        },
+        "mcp_tool": "get_issue"
+      },
+      {
+        "name": "apply_triage_decisions",
+        "description": "Apply triage decisions to an issue",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Repository name in format owner/repo"
+            },
+            "issue_number": {
+              "type": "integer",
+              "description": "Issue number to update"
+            },
+            "labels": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Labels to apply"
+            },
+            "assignees": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Users to assign to the issue"
+            },
+            "milestone": {
+              "type": "string",
+              "description": "Milestone to assign"
+            }
+          },
+          "required": ["repository", "issue_number"]
+        },
+        "mcp_tool": "update_issue"
+      },
+      {
+        "name": "create_triage_summary",
+        "description": "Create a summary issue for triage activities",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "repository": {
+              "type": "string",
+              "description": "Repository name in format owner/repo"
+            },
+            "title": {
+              "type": "string",
+              "description": "Title for the summary issue"
+            },
+            "summary_content": {
+              "type": "string",
+              "description": "Detailed triage summary content"
+            }
+          },
+          "required": ["repository", "title", "summary_content"]
+        },
+        "mcp_tool": "create_issue"
+      }
+    ]
+  },
+  "triage_rules": {
+    "priority_mapping": {
+      "critical": ["security", "data-loss", "crash", "outage"],
+      "high": ["bug", "performance", "regression"],
+      "medium": ["enhancement", "feature-request"],
+      "low": ["documentation", "cleanup", "refactor"]
+    },
+    "label_suggestions": {
+      "bug_indicators": ["error", "crash", "fail", "broken", "not working"],
+      "feature_indicators": ["add", "implement", "support", "feature", "enhancement"],
+      "documentation_indicators": ["doc", "readme", "guide", "example"]
+    },
+    "auto_assignment": {
+      "frontend": ["ui", "frontend", "react", "vue", "angular"],
+      "backend": ["api", "server", "database", "backend"],
+      "devops": ["deploy", "ci", "cd", "docker", "kubernetes"]
+    }
+  },
+  "metadata": {
+    "version": "1.0",
+    "created": "2025-01-01",
+    "author": "AutoGen Workshop - Lab 04",
+    "tags": ["github", "mcp", "issue-management", "triage", "automation"],
+    "requirements": {
+      "mcp_servers": ["github"],
+      "api_access": ["github_token"],
+      "permissions": ["issues:write", "issues:read"]
+    }
+  }
+}

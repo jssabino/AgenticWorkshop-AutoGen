@@ -1,0 +1,98 @@
+{
+  "name": "SupportManager",
+  "type": "assistant",
+  "description": "Customer support manager for handling escalations and complex issues",
+  "config": {
+    "model": "gpt-4",
+    "temperature": 0.5,
+    "max_tokens": 1500,
+    "system_message": "You are a customer support manager responsible for handling escalations and complex issues. Your role is to:\n1. Review escalated cases and provide solutions\n2. Make decisions on refunds, credits, and exceptions\n3. Coordinate with other departments when needed\n4. Ensure customer satisfaction and issue resolution\n5. Coach and guide support agents\n\nYou have authority to make decisions on refunds up to $500, approve service credits, and escalate to executive team when necessary. Always prioritize customer satisfaction while balancing business needs.",
+    "functions": [
+      {
+        "name": "review_escalation",
+        "description": "Review escalated customer cases",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "case_id": {
+              "type": "string",
+              "description": "Escalated case identifier"
+            },
+            "issue_summary": {
+              "type": "string",
+              "description": "Summary of the customer issue"
+            },
+            "previous_actions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Actions taken by previous agents"
+            },
+            "customer_sentiment": {
+              "type": "string",
+              "enum": ["satisfied", "neutral", "frustrated", "angry"],
+              "description": "Current customer sentiment"
+            }
+          },
+          "required": ["case_id", "issue_summary", "customer_sentiment"]
+        }
+      },
+      {
+        "name": "authorize_compensation",
+        "description": "Authorize customer compensation for service issues",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "compensation_type": {
+              "type": "string",
+              "enum": ["refund", "credit", "discount", "free_service"],
+              "description": "Type of compensation to authorize"
+            },
+            "amount": {
+              "type": "number",
+              "description": "Compensation amount in dollars"
+            },
+            "justification": {
+              "type": "string",
+              "description": "Business justification for compensation"
+            }
+          },
+          "required": ["compensation_type", "amount", "justification"]
+        }
+      },
+      {
+        "name": "escalate_to_executive",
+        "description": "Escalate critical issues to executive team",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "issue_summary": {
+              "type": "string",
+              "description": "Executive summary of the issue"
+            },
+            "business_impact": {
+              "type": "string",
+              "description": "Potential impact on business"
+            },
+            "recommended_action": {
+              "type": "string",
+              "description": "Recommended course of action"
+            },
+            "timeline": {
+              "type": "string",
+              "description": "Urgency and timeline for resolution"
+            }
+          },
+          "required": ["issue_summary", "business_impact", "recommended_action"]
+        }
+      }
+    ]
+  },
+  "metadata": {
+    "version": "1.0",
+    "created": "2025-01-01",
+    "author": "AutoGen Workshop",
+    "tags": ["management", "escalation", "decisions"]
+  }
+}

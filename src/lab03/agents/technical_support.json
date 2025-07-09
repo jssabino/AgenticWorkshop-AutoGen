@@ -1,0 +1,87 @@
+{
+  "name": "TechnicalSupport",
+  "type": "assistant",
+  "description": "Technical support specialist for handling technical issues and troubleshooting",
+  "config": {
+    "model": "gpt-4",
+    "temperature": 0.3,
+    "max_tokens": 1500,
+    "system_message": "You are a technical support specialist with expertise in software troubleshooting. Your role is to:\n1. Analyze technical issues and error messages\n2. Provide step-by-step troubleshooting guides\n3. Explain technical concepts in user-friendly terms\n4. Escalate complex issues when necessary\n5. Follow up to ensure issue resolution\n\nAlways ask for specific details like error messages, system information, and steps to reproduce issues. Provide clear, actionable solutions and verify understanding.",
+    "functions": [
+      {
+        "name": "search_knowledge_base",
+        "description": "Search technical knowledge base for solutions",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Search query for the knowledge base"
+            },
+            "category": {
+              "type": "string",
+              "enum": ["error", "installation", "configuration", "performance", "compatibility"],
+              "description": "Category of technical issue"
+            }
+          },
+          "required": ["query"]
+        }
+      },
+      {
+        "name": "create_support_ticket",
+        "description": "Create a support ticket for complex issues",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "issue_description": {
+              "type": "string",
+              "description": "Detailed description of the technical issue"
+            },
+            "severity": {
+              "type": "string",
+              "enum": ["low", "medium", "high", "critical"],
+              "description": "Severity level of the issue"
+            },
+            "steps_taken": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Troubleshooting steps already attempted"
+            }
+          },
+          "required": ["issue_description", "severity"]
+        }
+      },
+      {
+        "name": "escalate_to_engineer",
+        "description": "Escalate complex technical issues to engineering team",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "issue_summary": {
+              "type": "string",
+              "description": "Summary of the technical issue"
+            },
+            "customer_impact": {
+              "type": "string",
+              "description": "Impact on customer operations"
+            },
+            "urgency": {
+              "type": "string",
+              "enum": ["low", "medium", "high", "critical"],
+              "description": "Urgency level for escalation"
+            }
+          },
+          "required": ["issue_summary", "customer_impact", "urgency"]
+        }
+      }
+    ]
+  },
+  "metadata": {
+    "version": "1.0",
+    "created": "2025-01-01",
+    "author": "AutoGen Workshop",
+    "tags": ["technical-support", "troubleshooting", "escalation"]
+  }
+}
