@@ -20,13 +20,15 @@ This workshop is designed to provide a deep dive into AutoGen, Microsoft's power
 
 ![autogen](https://www.microsoft.com/en-us/research/wp-content/uploads/2023/10/image-3-1024x679.png)
 
-AutoGen is a framework that enables the creation of applications using multiple AI agents that can converse with each other to solve tasks. It simplifies the orchestration of complex workflows by allowing agents to:
+AutoGen is a open-source framework that enables the creation of applications using multiple AI agents that can converse with each other to solve tasks. It simplifies the orchestration of complex workflows by allowing agents to:
 
 - Collaborate and communicate with each other
 - Execute code and validate results
 - Integrate with external tools and APIs
 - Maintain conversation context and memory
 - Support both chat-based and workflow-based interactions
+
+![types of agents](/img/agenticPatterns.png)
 
 ### Key Features
 
@@ -35,6 +37,12 @@ AutoGen is a framework that enables the creation of applications using multiple 
 - **Human-in-the-Loop**: Seamless integration of human feedback and oversight
 - **Extensible**: Easy integration with external tools and APIs
 - **Flexible**: Support for various LLM providers (OpenAI, Azure OpenAI, etc.)
+
+Autogen enables the next-gen LLM applications with a generic multi-agent conversation framework. It offers customizable and conversable agents which integrate LLMs, tools, and humans. By automating chat among multiple capable agents, one can easily make them collectively perform tasks autonomously or with human feedback, including tasks that require using tools via code.
+
+The figure below shows an example conversation flow with AutoGen.
+
+![autogen conversation flow](/img/ConversationFlow.png)
 
 ## 🛠 Workshop Structure
 

@@ -7,7 +7,7 @@
 - Explore agent configuration options
 
 ## 📋 Prerequisites
-- .NET 8.0 SDK installed
+- .NET 9.0 SDK installed
 - OpenAI API key or Azure OpenAI access
 - Basic C# knowledge
 
