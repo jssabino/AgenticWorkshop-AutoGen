@@ -41,7 +41,8 @@
 	"forwardPorts": [8081, 8081],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": ["dotnet restore", "pip3 install --user -r requirements.txt"]
+	"postCreateCommand": "pip3 install --user -r requirements.txt",
+	"postAttachCommand": "echo foo='bar'"
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
