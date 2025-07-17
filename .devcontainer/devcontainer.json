@@ -41,7 +41,7 @@
 	"forwardPorts": [8081, 8081],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pip3 install --user -r requirements.txt --break-system-packages",
+	"postCreateCommand": "pip3 install --user -r requirements.txt --break-system-packages && npx --yes playwright install",
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	"remoteUser": "root"
