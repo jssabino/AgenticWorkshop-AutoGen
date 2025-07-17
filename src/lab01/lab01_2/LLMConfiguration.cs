@@ -4,7 +4,7 @@
 using AutoGen;
 using AutoGen.OpenAI;
 
-namespace Lab03.BasicSample;
+namespace Lab01_2.BasicSample;
 
 internal static class LLMConfiguration
 {

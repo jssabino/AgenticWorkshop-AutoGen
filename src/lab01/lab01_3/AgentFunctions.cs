@@ -1,8 +1,8 @@
 using AutoGen;
 using AutoGen.Core;
 
-namespace Lab03;
-public class AgentFunctions
+namespace Lab01_3;
+public partial class AgentFunctions
 {
     /// <summary>
     /// upper case the message when asked.

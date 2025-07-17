@@ -53,22 +53,29 @@ The figure below shows an example conversation flow with AutoGen.
 - Basic conversation patterns
 - Agent configuration and customization
 
-### [Lab 02: Multi-Agent Systems](./src/lab02/README.md)
-**Duration**: 60 minutes
+### (NOT WORKING) [Lab 02: WebBrowsing Agent Team](./src/lab02/README.md)
+**Duration**: 45 minutes
+- Building a team of web-browsing agents
+- Implementing group chat
+- Leveraging Playwright for web automation
+- Web browsing and data extraction
+
+### (NOT WORKING) [Lab 03: Multi-Agent Systems](./src/lab03/README.md)
+**Duration**: 45 minutes
 - Building multi-agent conversations
 - Agent roles and responsibilities
 - Conversation flow control
 - Advanced agent interactions
 
-### [Lab 03: AutoGen Studio](./src/lab03/README.md)
+### [Lab 04: AutoGen Studio](./src/lab04/README.md)
 **Duration**: 45 minutes
 - Setting up AutoGen Studio
 - Visual agent design
 - No-code multi-agent workflows
 - Studio configuration and customization
 
-### [Lab 04: AutoGen and MCP Integration](./src/lab04/README.md)
-**Duration**: 75 minutes
+### (NOT WORKING) [Lab 05: AutoGen and MCP Integration](./src/lab05/README.md)
+**Duration**: 45 minutes
 - Understanding Model Context Protocol (MCP)
 - Integrating AutoGen with GitHub MCP server
 - Code-based MCP integration

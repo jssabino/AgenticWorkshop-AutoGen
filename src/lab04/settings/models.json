@@ -1,0 +1,15 @@
+{
+  "provider": "autogen_ext.models.openai.AzureOpenAIChatCompletionClient",
+  "component_type": "model",
+  "version": 1,
+  "component_version": 1,
+  "description": "Chat completion client for Azure OpenAI hosted models.",
+  "label": "AzureOpenAIChatCompletionClient",
+  "config": {
+    "model": "gpt-4o",
+    "api_key": "sk-...",
+    "azure_endpoint": "https://{your-custom-endpoint}.openai.azure.com/",
+    "azure_deployment": "{your-azure-deployment}",
+    "api_version": "2024-06-01"
+  }
+}

@@ -1,6 +1,6 @@
 ﻿using AutoGen;
 using AutoGen.Core;
-using Lab03.BasicSample;
+using Lab01_3.BasicSample;
 using FluentAssertions;
 using DotNetEnv;
 
@@ -12,7 +12,7 @@ Env.Load(dotenv);
 
 
 
-var instance = new Lab03.AgentFunctions();
+var instance = new Lab01_3.AgentFunctions();
 var gpt4o = LLMConfiguration.GetAzureOpenAIGPT4o();
 
 // AutoGen makes use of AutoGen.SourceGenerator to automatically generate FunctionDefinition and FunctionCallWrapper for you.
@@ -36,27 +36,27 @@ var agent = new AssistantAgent(
     llmConfig: config,
     functionMap: new Dictionary<string, Func<string, Task<string>>>
     {
-        { nameof(ConcatString), instance.ConcatStringWrapper },
-        { nameof(UpperCase), instance.UpperCaseWrapper },
-        { nameof(CalculateTax), instance.CalculateTaxWrapper },
+        { nameof(Lab01_3.AgentFunctions.ConcatString), instance.ConcatStringWrapper },
+        { nameof(Lab01_3.AgentFunctions.UpperCase), instance.UpperCaseWrapper },
+        { nameof(Lab01_3.AgentFunctions.CalculateTax), instance.CalculateTaxWrapper },
     })
     .RegisterPrintMessage();
 
 // talk to the assistant agent
 var upperCase = await agent.SendAsync("convert to upper case: hello world");
 upperCase.GetContent()?.Should().Be("HELLO WORLD");
-upperCase.Should().BeOfType<AggregateMessage<ToolCallMessage, ToolCallResultMessage>>();
+upperCase.Should().BeOfType<ToolCallAggregateMessage>();
 upperCase.GetToolCalls().Should().HaveCount(1);
-upperCase.GetToolCalls().First().FunctionName.Should().Be(nameof(UpperCase));
+upperCase.GetToolCalls().First().FunctionName.Should().Be(nameof(Lab01_3.AgentFunctions.UpperCase));
 
 var concatString = await agent.SendAsync("concatenate strings: a, b, c, d, e");
 concatString.GetContent()?.Should().Be("a b c d e");
-concatString.Should().BeOfType<AggregateMessage<ToolCallMessage, ToolCallResultMessage>>();
+concatString.Should().BeOfType<ToolCallAggregateMessage>();
 concatString.GetToolCalls().Should().HaveCount(1);
-concatString.GetToolCalls().First().FunctionName.Should().Be(nameof(ConcatString));
+concatString.GetToolCalls().First().FunctionName.Should().Be(nameof(Lab01_3.AgentFunctions.ConcatString));
 
 var calculateTax = await agent.SendAsync("calculate tax: 100, 0.1");
 calculateTax.GetContent().Should().Be("tax is 10");
-calculateTax.Should().BeOfType<AggregateMessage<ToolCallMessage, ToolCallResultMessage>>();
+calculateTax.Should().BeOfType<ToolCallAggregateMessage>();
 calculateTax.GetToolCalls().Should().HaveCount(1);
-calculateTax.GetToolCalls().First().FunctionName.Should().Be(nameof(CalculateTax));
+calculateTax.GetToolCalls().First().FunctionName.Should().Be(nameof(Lab01_3.AgentFunctions.CalculateTax));

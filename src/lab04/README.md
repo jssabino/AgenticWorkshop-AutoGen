@@ -1,335 +1,407 @@
-# Lab 04: AutoGen and MCP Integration
+# Lab 04: AutoGen Studio
 
 ## 🎯 Objectives
-- Understand the Model Context Protocol (MCP)
-- Integrate AutoGen with external tools via MCP
-- Connect AutoGen agents to GitHub MCP server
-- Build sophisticated tool-enabled agent workflows
-- Configure MCP integration in both code and AutoGen Studio
+- Set up and configure AutoGen Studio
+- Create multi-agent workflows using a visual interface
+- Understand the no-code approach to agent development
+- Build and deploy agent conversations through the Studio UI
 
 ## 📋 Prerequisites
-- Completed Labs 01-03
-- Understanding of AutoGen multi-agent systems
-- GitHub account and personal access token
-- Node.js 18+ and npm (for MCP servers)
+- Completed Lab 01 and Lab 02
+- Python 3.8+ installed
 - OpenAI API key or Azure OpenAI access
+- Basic understanding of multi-agent systems
 
 ## 🚀 Getting Started
 
-### Step 1: Understanding MCP
-The Model Context Protocol (MCP) is an open standard for connecting AI systems with external tools and data sources. It enables:
-- Secure tool integration
-- Standardized communication protocols
-- Extensible architecture for custom tools
-- Real-time data access for AI agents
+### Step 1: Install AutoGen Studio
+```bash
+pip install autogenstudio
+```
 
-### Step 2: Lab Structure
-This lab is divided into two main sections:
-- **Code Integration**: Programmatic MCP integration with AutoGen
-- **Studio Integration**: Visual MCP configuration in AutoGen Studio
+### Step 2: Launch AutoGen Studio
+```bash
+autogenstudio ui --port 8081
+```
+
+### Step 3: Open in Browser
+Navigate to `http://localhost:8081` in your web browser.
 
 ## 🔍 What You'll Learn
 
-### 1. MCP Architecture
-- **MCP Servers**: External tools and services
-- **MCP Clients**: AI systems that consume MCP services
-- **Protocol**: Standardized communication format
-- **Security**: Authentication and authorization mechanisms
+### 1. AutoGen Studio Interface
+- **Agent Designer**: Visual agent creation and configuration
+- **Workflow Builder**: Drag-and-drop conversation flow design
+- **Chat Interface**: Real-time conversation testing
+- **Configuration Manager**: Model and API settings
 
-### 2. AutoGen + MCP Integration
-- **Tool Registration**: Adding MCP tools to AutoGen agents
-- **Function Calling**: Invoking MCP tools from conversations
-- **Data Flow**: Managing data between agents and external services
-- **Error Handling**: Robust error management in integrated systems
+### 2. Visual Agent Development
+- **Agent Templates**: Pre-built agent configurations
+- **Custom Agents**: Creating specialized agents visually
+- **Agent Relationships**: Defining interaction patterns
+- **Conversation Flows**: Designing multi-agent workflows
 
-### 3. GitHub MCP Server
-- **Repository Operations**: Clone, read, write, commit operations
-- **Issue Management**: Creating, updating, and managing GitHub issues
-- **Pull Request Workflows**: Automating PR creation and management
-- **Code Analysis**: AI-powered code review and suggestions
+### 3. No-Code Multi-Agent Systems
+- **Workflow Templates**: Common multi-agent patterns
+- **Event-Driven Flows**: Reactive agent behaviors
+- **Conditional Logic**: Decision-making in conversations
+- **Integration Points**: Connecting with external services
 
-## 📚 MCP Deep Dive
+## 📚 Studio Components Deep Dive
 
-### MCP Protocol Overview
-MCP defines a standard way for AI systems to:
-1. **Discovery**: Find available tools and their capabilities
-2. **Authentication**: Securely connect to external services
-3. **Invocation**: Execute tool functions with parameters
-4. **Response**: Receive and process tool results
+### Agent Designer
+The Agent Designer allows you to create and configure agents without writing code:
 
-### MCP Message Types
-- **Initialize**: Establish connection and capabilities
-- **List Tools**: Discover available tools
-- **Call Tool**: Execute a specific tool function
-- **Get Resource**: Retrieve data from external sources
-- **Subscribe**: Monitor real-time updates
+#### Agent Configuration
+- **Name**: Unique identifier for the agent
+- **Role**: System message defining agent behavior
+- **Model**: LLM model selection (GPT-4, GPT-3.5, etc.)
+- **Parameters**: Temperature, max tokens, etc.
+- **Skills**: Available functions and tools
 
-### Security Model
-- **Authentication**: API keys, OAuth, or other auth mechanisms
-- **Authorization**: Permission-based access control
-- **Encryption**: Secure data transmission
-- **Sandboxing**: Isolated execution environments
+#### Agent Types
+- **Assistant**: General-purpose conversational agent
+- **UserProxy**: Represents human users
+- **GroupChatManager**: Orchestrates multi-agent conversations
+- **Custom**: Specialized agents with specific roles
 
-## 🛠 Code Integration Section
+### Workflow Builder
+Design complex multi-agent workflows visually:
 
-### Setting Up MCP with AutoGen
+#### Flow Elements
+- **Start Node**: Conversation initiation
+- **Agent Nodes**: Individual agent interactions
+- **Decision Nodes**: Conditional branching
+- **End Node**: Conversation termination
 
-#### 1. Install MCP Dependencies
-```bash
-npm install @modelcontextprotocol/sdk
-npm install @modelcontextprotocol/server-github
-```
+#### Connection Types
+- **Sequential**: One agent after another
+- **Parallel**: Multiple agents simultaneously
+- **Conditional**: Based on conversation context
+- **Loop**: Repeating interactions
 
-#### 2. Create MCP Client Configuration
+### Chat Interface
+Test and refine your multi-agent systems:
+
+#### Features
+- **Real-time Chat**: Live conversation testing
+- **Agent Switching**: Manual agent control
+- **Message History**: Conversation tracking
+- **Export Options**: Save conversations for analysis
+
+## 🛠 Practical Examples
+
+### Example 1: Customer Service Team
+Create a customer service team using the Studio interface:
+
+1. **Create Agents**:
+   - Intake Agent (receives customer requests)
+   - Technical Support (handles technical issues)
+   - Billing Support (handles billing inquiries)
+   - Manager (escalation handling)
+
+2. **Build a Team**:
+   - Customer → Intake Agent
+   - Intake Agent → Appropriate Specialist
+   - Specialist → Manager (if escalation needed)
+
+3. **Configure Rules**:
+   - Route technical issues to Technical Support
+   - Route billing questions to Billing Support
+   - Escalate unresolved issues to Manager
+
+### Example 2: Content Creation Team
+Build a content creation workflow:
+
+1. **Create Agents**:
+   - Content Strategist (plans content)
+   - Writer (creates content)
+   - Editor (reviews and refines)
+   - Publisher (finalizes and publishes)
+
+2. **Design Workflow**:
+   - Strategist → Writer → Editor → Publisher
+   - Editor → Writer (for revisions)
+   - Publisher → Strategist (for feedback)
+
+## 🔧 Configuration Files
+
+### Agent Configuration
 ```json
 {
-  "mcp_servers": {
-    "github": {
-      "command": "npx",
-      "args": ["@modelcontextprotocol/server-github"],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "your_github_token"
+  "name": "TechnicalSupport",
+  "type": "assistant",
+  "config": {
+    "model": "gpt-4",
+    "temperature": 0.7,
+    "max_tokens": 1000,
+    "system_message": "You are a technical support specialist...",
+    "functions": [
+      {
+        "name": "search_knowledge_base",
+        "description": "Search the technical knowledge base"
       }
-    }
+    ]
   }
 }
 ```
 
-#### 3. AutoGen Agent with MCP Tools
-```csharp
-public class MCPEnabledAgent : AssistantAgent
+### Workflow Configuration
+```json
 {
-    private readonly MCPClient _mcpClient;
-    
-    public MCPEnabledAgent(string name, string systemMessage, 
-                          LLMConfig llmConfig, MCPClient mcpClient)
-        : base(name, systemMessage, llmConfig)
+  "name": "CustomerServiceWorkflow",
+  "description": "Multi-agent customer service workflow",
+  "agents": [
     {
-        _mcpClient = mcpClient;
-        RegisterMCPTools();
-    }
-    
-    private void RegisterMCPTools()
+      "id": "intake",
+      "config_path": "./agents/intake_agent.json"
+    },
     {
-        // Register GitHub MCP tools
-        RegisterTool("create_github_issue", CreateGitHubIssue);
-        RegisterTool("search_github_repos", SearchGitHubRepos);
-        RegisterTool("read_file_content", ReadFileContent);
-    }
-    
-    private async Task<string> CreateGitHubIssue(string title, string body, string repo)
+      "id": "technical",
+      "config_path": "./agents/technical_support.json"
+    },
     {
-        var result = await _mcpClient.CallTool("create_issue", new
-        {
-            title = title,
-            body = body,
-            repository = repo
-        });
-        return result.ToString();
+      "id": "billing",
+      "config_path": "./agents/billing_support.json"
     }
+  ],
+  "workflow": {
+    "start": "intake",
+    "flows": [
+      {
+        "from": "intake",
+        "to": "technical",
+        "condition": "technical_issue"
+      },
+      {
+        "from": "intake",
+        "to": "billing",
+        "condition": "billing_issue"
+      }
+    ]
+  }
 }
 ```
 
-## 🎮 Exercises
-
-### Exercise 1: Basic MCP Connection
-1. Set up a GitHub MCP server
-2. Create an AutoGen agent with MCP capabilities
-3. Test basic GitHub operations (list repos, read files)
-
-### Exercise 2: AI-Powered Code Review
-1. Create a code review agent with GitHub MCP access
-2. Implement file reading and analysis capabilities
-3. Generate automated code review comments
-
-### Exercise 3: Issue Management Workflow
-1. Build a multi-agent system for GitHub issue management
-2. Create agents for:
-   - Issue triage and labeling
-   - Assignment to team members
-   - Progress tracking and updates
-
-### Exercise 4: Automated PR Workflow
-1. Create agents that can:
-   - Analyze code changes
-   - Generate PR descriptions
-   - Suggest reviewers
-   - Track PR status
-
-## 🔧 Advanced Integration Patterns
-
-### 1. Multi-Tool Agent
-```csharp
-public class MultiToolAgent : AssistantAgent
+### Settings Configuration
+```json
 {
-    public MultiToolAgent() : base("MultiTool", systemMessage, llmConfig)
-    {
-        // Register multiple MCP servers
-        RegisterMCPServer("github", githubMCPClient);
-        RegisterMCPServer("slack", slackMCPClient);
-        RegisterMCPServer("jira", jiraMCPClient);
+  "models": {
+    "openai": {
+      "api_key": "your_openai_api_key",
+      "api_base": "https://api.openai.com/v1",
+      "api_version": "2024-02-01"
+    },
+    "azure_openai": {
+      "api_key": "your_azure_openai_key",
+      "api_base": "https://your-resource.openai.azure.com/",
+      "api_version": "2024-02-01"
     }
-    
-    public async Task<string> CrossPlatformOperation(string operation, object parameters)
-    {
-        // Coordinate operations across multiple platforms
-        var results = new List<string>();
-        
-        // Create GitHub issue
-        var githubResult = await CallMCPTool("github", "create_issue", parameters);
-        results.Add(githubResult);
-        
-        // Notify team on Slack
-        var slackResult = await CallMCPTool("slack", "send_message", parameters);
-        results.Add(slackResult);
-        
-        // Create JIRA ticket
-        var jiraResult = await CallMCPTool("jira", "create_ticket", parameters);
-        results.Add(jiraResult);
-        
-        return string.Join("\n", results);
-    }
+  },
+  "default_model": "gpt-4",
+  "max_tokens": 2000,
+  "temperature": 0.7
 }
 ```
 
-### 2. Workflow Orchestration
-```csharp
-public class WorkflowOrchestrator
+## 🧪 Advanced Features
+
+### 1. Custom Functions
+Add custom functions to agents:
+
+```json
 {
-    private readonly List<MCPEnabledAgent> _agents;
-    private readonly Dictionary<string, MCPClient> _mcpClients;
-    
-    public async Task<WorkflowResult> ExecuteWorkflow(WorkflowDefinition workflow)
+  "functions": [
     {
-        foreach (var step in workflow.Steps)
-        {
-            var agent = _agents.Find(a => a.Name == step.AgentName);
-            var mcpClient = _mcpClients[step.MCPServer];
-            
-            var result = await agent.ExecuteWithMCP(step.Action, step.Parameters, mcpClient);
-            
-            if (!result.Success)
-            {
-                return new WorkflowResult { Success = false, Error = result.Error };
-            }
-        }
-        
-        return new WorkflowResult { Success = true };
+      "name": "get_weather",
+      "description": "Get current weather information",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "location": {
+            "type": "string",
+            "description": "The city and state, e.g. San Francisco, CA"
+          }
+        },
+        "required": ["location"]
+      }
     }
+  ]
 }
 ```
+
+### 2. Conditional Logic
+Implement decision-making in workflows:
+
+```json
+{
+  "decision_nodes": [
+    {
+      "id": "issue_classifier",
+      "condition": "message_contains('technical')",
+      "true_path": "technical_support",
+      "false_path": "general_support"
+    }
+  ]
+}
+```
+
+### 3. Integration with External APIs
+Connect agents to external services:
+
+```json
+{
+  "integrations": [
+    {
+      "name": "knowledge_base",
+      "type": "rest_api",
+      "url": "https://api.knowledge.com/search",
+      "authentication": {
+        "type": "bearer",
+        "token": "your_api_token"
+      }
+    }
+  ]
+}
+```
+
+## 🎮 Hands-On Exercises
+
+### Exercise 1: Basic Agent Creation
+1. Open AutoGen Studio
+2. Create a simple assistant agent
+3. Configure it with a custom system message
+4. Test it in the chat interface
+
+### Exercise 2: Multi-Agent Workflow
+1. Create three agents: Planner, Executor, Reviewer
+2. Design a workflow where:
+   - Planner creates a plan
+   - Executor implements the plan
+   - Reviewer provides feedback
+3. Test the complete workflow
+
+### Exercise 3: Customer Service Simulator
+1. Create a customer service team with 4 agents
+2. Design routing logic based on inquiry type
+3. Add escalation paths for complex issues
+4. Test with different customer scenarios
+
+### Exercise 4: Content Creation Pipeline
+1. Create a content creation team
+2. Design a workflow for blog post creation
+3. Add revision loops and approval gates
+4. Test with a sample content request
+
+## 🔍 Troubleshooting
+
+### Common Issues
+
+#### 1. Agent Not Responding
+- Check API key configuration
+- Verify model availability
+- Review system message formatting
+- Check network connectivity
+
+#### 2. Workflow Stuck in Loop
+- Review conditional logic
+- Add termination conditions
+- Check agent response patterns
+- Implement timeout mechanisms
+
+#### 3. Performance Issues
+- Optimize agent system messages
+- Reduce conversation context length
+- Use appropriate model for task complexity
+- Implement caching where possible
+
+#### 4. Configuration Errors
+- Validate JSON syntax
+- Check required fields
+- Verify file paths
+- Review agent references
 
 ## 🏆 Best Practices
 
-### 1. Error Handling
-```csharp
-public async Task<MCPResult> SafeMCPCall(string tool, object parameters)
-{
-    try
-    {
-        var result = await _mcpClient.CallTool(tool, parameters);
-        return new MCPResult { Success = true, Data = result };
-    }
-    catch (MCPException ex)
-    {
-        _logger.LogError(ex, "MCP call failed: {Tool}", tool);
-        return new MCPResult { Success = false, Error = ex.Message };
-    }
-    catch (Exception ex)
-    {
-        _logger.LogError(ex, "Unexpected error in MCP call: {Tool}", tool);
-        return new MCPResult { Success = false, Error = "Unexpected error occurred" };
-    }
-}
-```
+### 1. Agent Design
+- **Clear Roles**: Define specific, focused roles for each agent
+- **Consistent Naming**: Use descriptive, consistent agent names
+- **Appropriate Models**: Choose models based on task complexity
+- **System Messages**: Write clear, specific system messages
 
-### 2. Rate Limiting
-```csharp
-public class RateLimitedMCPClient
-{
-    private readonly SemaphoreSlim _semaphore;
-    private readonly Dictionary<string, DateTime> _lastCalls;
-    
-    public async Task<string> CallTool(string tool, object parameters)
-    {
-        await _semaphore.WaitAsync();
-        try
-        {
-            await EnforceRateLimit(tool);
-            return await _mcpClient.CallTool(tool, parameters);
-        }
-        finally
-        {
-            _semaphore.Release();
-        }
-    }
-    
-    private async Task EnforceRateLimit(string tool)
-    {
-        if (_lastCalls.ContainsKey(tool))
-        {
-            var timeSinceLastCall = DateTime.UtcNow - _lastCalls[tool];
-            if (timeSinceLastCall < TimeSpan.FromSeconds(1))
-            {
-                await Task.Delay(TimeSpan.FromSeconds(1) - timeSinceLastCall);
-            }
-        }
-        _lastCalls[tool] = DateTime.UtcNow;
-    }
-}
-```
+### 2. Workflow Design
+- **Logical Flow**: Design intuitive conversation flows
+- **Error Handling**: Include error recovery paths
+- **Termination Conditions**: Define clear end points
+- **Testing**: Thoroughly test all workflow paths
 
-### 3. Security Considerations
-- **API Key Management**: Store keys securely, rotate regularly
-- **Permission Scoping**: Use minimal required permissions
-- **Input Validation**: Validate all MCP tool parameters
-- **Audit Logging**: Log all MCP operations for security monitoring
+### 3. Configuration Management
+- **Version Control**: Track configuration changes
+- **Documentation**: Document agent roles and workflows
+- **Backup**: Maintain configuration backups
+- **Security**: Secure API keys and sensitive data
+
+### 4. Performance Optimization
+- **Conversation Length**: Monitor and manage context length
+- **Model Selection**: Use appropriate models for each task
+- **Caching**: Implement response caching where beneficial
+- **Load Testing**: Test workflows under load
+
+## 📁 Studio Files Structure
+
+```
+lab03/
+├── agents/
+│   ├── intake_agent.json
+│   ├── technical_support.json
+│   ├── billing_support.json
+│   └── manager.json
+├── workflows/
+│   ├── customer_service.json
+│   ├── content_creation.json
+│   └── research_team.json
+├── settings/
+│   ├── models.json
+│   ├── api_keys.json
+│   └── preferences.json
+└── exports/
+    ├── conversations/
+    └── reports/
+```
 
 ## 📖 Further Reading
 
 ### Official Documentation
-- [Model Context Protocol Specification](https://modelcontextprotocol.io/)
-- [MCP SDK Documentation](https://modelcontextprotocol.io/docs)
-- [GitHub MCP Server](https://github.com/modelcontextprotocol/servers/tree/main/src/github)
+- [AutoGen Studio Documentation](https://microsoft.github.io/autogen/docs/ecosystem/autogen-studio)
+- [AutoGen Studio GitHub](https://github.com/microsoft/autogen/tree/main/samples/apps/autogen-studio)
+- [Studio Configuration Guide](https://microsoft.github.io/autogen/docs/ecosystem/autogen-studio/configuration)
 
-### Implementation Guides
-- [Building Custom MCP Servers](https://modelcontextprotocol.io/docs/building-servers)
-- [MCP Client Implementation](https://modelcontextprotocol.io/docs/building-clients)
-- [Security Best Practices](https://modelcontextprotocol.io/docs/security)
+### Video Tutorials
+- [AutoGen Studio Getting Started](https://www.youtube.com/watch?v=your_video_id)
+- [Building Multi-Agent Workflows](https://www.youtube.com/watch?v=your_video_id)
+- [Advanced Studio Features](https://www.youtube.com/watch?v=your_video_id)
 
 ### Community Resources
-- [MCP Examples Repository](https://github.com/modelcontextprotocol/examples)
-- [MCP Discord Community](https://discord.gg/modelcontextprotocol)
-- [AutoGen + MCP Integration Examples](https://github.com/microsoft/autogen/tree/main/samples/mcp)
+- [AutoGen Studio Examples](https://github.com/microsoft/autogen/tree/main/samples/apps/autogen-studio/examples)
+- [Community Workflows](https://github.com/microsoft/autogen/discussions)
+- [Studio Tips and Tricks](https://microsoft.github.io/autogen/docs/ecosystem/autogen-studio/tips)
 
 ## 🏆 Lab Completion
 
-You've successfully completed Lab 04 when you can:
-- [x] Understand MCP architecture and protocols
-- [x] Set up and configure MCP servers
-- [x] Integrate MCP tools with AutoGen agents
-- [x] Build complex workflows with external tool integration
-- [x] Handle errors and security in MCP integrations
-- [x] Configure MCP in both code and AutoGen Studio
+You've successfully completed Lab 03 when you can:
+- [x] Set up and configure AutoGen Studio
+- [x] Create agents using the visual interface
+- [x] Design multi-agent workflows
+- [x] Test conversations in real-time
+- [x] Export and manage configurations
+- [x] Troubleshoot common issues
 
-## 🎉 Workshop Completion
+## ➡️ Next Steps
 
-Congratulations! You've completed the entire AutoGen workshop. You now have:
-- **Foundation**: Understanding of AutoGen basics and agent creation
-- **Multi-Agent Systems**: Skills to build complex agent interactions
-- **Visual Development**: Experience with AutoGen Studio
-- **External Integration**: Ability to connect agents with external tools via MCP
-
-## 🚀 Next Steps
-
-Continue your AutoGen journey by:
-1. Building custom agents for your specific use cases
-2. Exploring advanced AutoGen features and patterns
-3. Contributing to the AutoGen community
-4. Integrating AutoGen into your production systems
+Ready to integrate external tools and services? Continue to [Lab 04: AutoGen and MCP Integration](../lab04/README.md) to learn how to connect AutoGen with external systems using the Model Context Protocol.
 
 ---
 
-**Estimated Time**: 75 minutes
-**Difficulty**: Advanced
-**Prerequisites**: Completed Labs 01-03, GitHub account, Node.js 18+
+**Estimated Time**: 45 minutes
+**Difficulty**: Intermediate
+**Prerequisites**: Completed Labs 01-02, Python 3.8+

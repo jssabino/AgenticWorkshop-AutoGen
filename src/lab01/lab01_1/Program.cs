@@ -1,6 +1,6 @@
 ﻿using AutoGen.Core;
 using AutoGen;
-using Lab01.BasicSample;
+using Lab01_1.BasicSample;
 using FluentAssertions;
 using DotNetEnv;
 

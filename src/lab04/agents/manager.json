@@ -1,0 +1,37 @@
+{
+  "provider": "autogen_agentchat.agents.AssistantAgent",
+  "component_type": "agent",
+  "version": 1,
+  "component_version": 1,
+  "description": "Customer support manager for handling escalations and complex issues",
+  "label": "SupportManager",
+  "config": {
+    "name": "assistant_agent",
+    "model_client": {
+      "provider": "autogen_ext.models.openai.AzureOpenAIChatCompletionClient",
+      "component_type": "model",
+      "version": 1,
+      "component_version": 1,
+      "description": "Chat completion client for OpenAI hosted models.",
+      "label": "AzureOpenAIChatCompletionClient",
+      "config": {
+        "model": "gpt-4o"
+      }
+    },
+    "tools": [],
+    "model_context": {
+      "provider": "autogen_core.model_context.UnboundedChatCompletionContext",
+      "component_type": "chat_completion_context",
+      "version": 1,
+      "component_version": 1,
+      "description": "An unbounded chat completion context that keeps a view of the all the messages.",
+      "label": "UnboundedChatCompletionContext",
+      "config": {}
+    },
+    "description": "An agent that provides assistance with ability to use tools.",
+    "system_message": "\"You are a customer support manager responsible for handling escalations and complex issues. Your role is to:\\n1. Review escalated cases and provide solutions\\n2. Make decisions on refunds, credits, and exceptions\\n3. Coordinate with other departments when needed\\n4. Ensure customer satisfaction and issue resolution\\n5. Coach and guide support agents\\n\\nYou have authority to make decisions on refunds up to $500, approve service credits, and escalate to executive team when necessary. Always prioritize customer satisfaction while balancing business needs.",
+    "model_client_stream": false,
+    "reflect_on_tool_use": false,
+    "tool_call_summary_format": ""
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "provider": "autogen_agentchat.agents.AssistantAgent",
+  "component_type": "agent",
+  "version": 1,
+  "component_version": 1,
+  "description": "Customer service intake agent that receives and categorizes customer requests",
+  "label": "IntakeAgent",
+  "config": {
+    "name": "assistant_agent",
+    "model_client": {
+      "provider": "autogen_ext.models.openai.AzureOpenAIChatCompletionClient",
+      "component_type": "model",
+      "version": 1,
+      "component_version": 1,
+      "description": "Chat completion client for OpenAI hosted models.",
+      "label": "AzureOpenAIChatCompletionClient",
+      "config": {
+        "model": "gpt-4o"
+      }
+    },
+    "tools": [],
+    "model_context": {
+      "provider": "autogen_core.model_context.UnboundedChatCompletionContext",
+      "component_type": "chat_completion_context",
+      "version": 1,
+      "component_version": 1,
+      "description": "An unbounded chat completion context that keeps a view of the all the messages.",
+      "label": "UnboundedChatCompletionContext",
+      "config": {}
+    },
+    "description": "An agent that provides assistance with ability to use tools.",
+    "system_message": "You are a customer service intake agent. Your role is to:\\n1. Greet customers warmly and professionally\\n2. Listen to their concerns and gather relevant information\\n3. Categorize the issue (technical, billing, general inquiry, complaint)\\n4. Collect necessary details (account info, error messages, steps taken)\\n5. Route to appropriate specialist or provide initial assistance\\n6. Maintain a helpful, empathetic tone throughout the interaction\\n\\nAlways ask clarifying questions to fully understand the customer's needs before routing them to a specialist.",
+    "model_client_stream": false,
+    "reflect_on_tool_use": false,
+    "tool_call_summary_format": ""
+  }
+}

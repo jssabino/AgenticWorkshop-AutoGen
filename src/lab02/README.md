@@ -1,379 +1,517 @@
-# Lab 02: Multi-Agent Systems
+# Lab 02: WebBrowsing Agent Team
 
-## 🎯 Objectives
-- Build complex multi-agent conversational systems
-- Understand agent orchestration and communication patterns
-- Learn group chat management and agent coordination
-- Implement specialized agent roles and responsibilities
+**Duration**: 60 minutes
 
-## 📋 Prerequisites
-- Completed Lab 01
-- Understanding of AutoGen agent basics
-- OpenAI API key or Azure OpenAI access
+## 🎯 Learning Objectives
+
+By the end of this lab, you will be able to:
+
+1. **Create a WebBrowsing Agent Team** using multimodalWebSurfer and RoundRobinGroupChat
+2. **Integrate Playwright** for web automation and scraping
+3. **Implement multi-modal content processing** (text, images, PDFs)
+4. **Configure group chat dynamics** with multiple specialized agents
+5. **Handle real-world web browsing scenarios** and data extraction
+
+## 🛠 What You'll Build
+
+In this lab, you'll create a sophisticated web browsing agent team that can:
+- Navigate websites autonomously using Playwright
+- Extract and process multi-modal content (text, images, documents)
+- Coordinate between multiple specialized agents
+- Conduct research and summarize findings
+- Handle complex web interactions and form submissions
+
+## 🔧 Prerequisites
+
+- Completed Lab 01: Introduction to AutoGen
+- Basic understanding of web technologies (HTML, CSS, JavaScript)
+- Familiarity with web scraping concepts
+
+## 📋 Lab Structure
+
+### Part 1: Setting Up the Environment (15 minutes)
+- Install Playwright and required packages
+- Configure multimodalWebSurfer
+- Set up browser automation
+
+### Part 2: Creating the WebBrowsing Agent (20 minutes)
+- Build the primary web browsing agent
+- Configure Playwright integration
+- Implement basic navigation and content extraction
+
+### Part 3: Building the Agent Team (15 minutes)
+- Create specialized agents (Researcher, Analyzer, Summarizer)
+- Set up RoundRobinGroupChat
+- Configure agent roles and responsibilities
+
+### Part 4: Advanced Web Interactions (10 minutes)
+- Handle forms and user interactions
+- Process multi-modal content
+- Implement error handling and retry logic
 
 ## 🚀 Getting Started
 
-### Step 1: Project Setup
-Navigate to the lab02 directory and restore dependencies:
+### Step 1: Environment Setup
+
+First, let's install the required packages:
+
 ```bash
-cd src/lab02
-dotnet restore
+dotnet add package Microsoft.Playwright
+dotnet add package Microsoft.Playwright.NUnit
+dotnet add package PuppeteerSharp
+dotnet add package HtmlAgilityPack
 ```
 
-### Step 2: Configure API Keys
-Copy the .env.example file to .env and configure your API keys:
+Install Playwright browsers:
 ```bash
-cp .env.example .env
-# Edit .env with your API key
+npx playwright install
 ```
 
-### Step 3: Run the Multi-Agent Demo
-```bash
-dotnet run
-```
+### Step 2: Project Configuration
 
-## 🔍 What You'll Learn
+Update your `appsettings.json` to include web browsing configuration:
 
-### 1. Multi-Agent Architecture
-- **Agent Roles**: Different types of agents with specific responsibilities
-- **Communication Patterns**: How agents interact and coordinate
-- **Conversation Flow**: Managing turn-taking and message routing
-- **Group Dynamics**: Orchestrating conversations with multiple participants
-
-### 2. Agent Specialization
-- **Code Writer**: Agent specialized in writing code
-- **Code Reviewer**: Agent that reviews and improves code
-- **Project Manager**: Agent that coordinates tasks and decisions
-- **User Proxy**: Agent representing human users
-
-### 3. Advanced Conversation Patterns
-- **Sequential Conversations**: Agents taking turns in order
-- **Broadcast Conversations**: One agent communicating with multiple agents
-- **Hierarchical Conversations**: Manager-worker relationships
-- **Collaborative Conversations**: Agents working together on tasks
-
-## 📚 Code Walkthrough
-
-### Multi-Agent System Setup
-```csharp
-// Create specialized agents
-var codeWriter = new AssistantAgent(
-    name: "CodeWriter",
-    systemMessage: "You are an expert software developer...",
-    llmConfig: openAIConfig);
-
-var codeReviewer = new AssistantAgent(
-    name: "CodeReviewer", 
-    systemMessage: "You are a senior code reviewer...",
-    llmConfig: openAIConfig);
-
-var projectManager = new AssistantAgent(
-    name: "ProjectManager",
-    systemMessage: "You are a project manager...",
-    llmConfig: openAIConfig);
-```
-
-### Group Chat Management
-```csharp
-var groupChat = new GroupChat(
-    agents: new[] { codeWriter, codeReviewer, projectManager },
-    messages: new List<IMessage>(),
-    maxRound: 10);
-
-var groupChatManager = new GroupChatManager(
-    groupChat: groupChat,
-    llmConfig: openAIConfig);
-```
-
-## 🔧 Deep Dive: Multi-Agent Communication
-
-### Communication Patterns
-
-#### 1. Sequential Pattern
-Agents take turns in a predefined order:
-```
-User → Agent A → Agent B → Agent C → User
-```
-
-#### 2. Hub-and-Spoke Pattern
-Central agent coordinates with multiple specialized agents:
-```
-       Agent B
-         ↑
-User → Manager → Agent C
-         ↓
-       Agent D
-```
-
-#### 3. Collaborative Pattern
-Multiple agents work together on a shared task:
-```
-Agent A ↔ Agent B
-   ↕       ↕
-Agent C ↔ Agent D
-```
-
-### Message Routing
-AutoGen provides several strategies for message routing:
-
-#### 1. Round Robin
-```csharp
-var groupChat = new GroupChat(
-    agents: agents,
-    messages: messages,
-    speakerSelectionMethod: SpeakerSelectionMethod.RoundRobin);
-```
-
-#### 2. Manual Selection
-```csharp
-var groupChat = new GroupChat(
-    agents: agents,
-    messages: messages,
-    speakerSelectionMethod: SpeakerSelectionMethod.Manual);
-```
-
-#### 3. Auto Selection
-```csharp
-var groupChat = new GroupChat(
-    agents: agents,
-    messages: messages,
-    speakerSelectionMethod: SpeakerSelectionMethod.Auto);
-```
-
-### Agent Coordination Mechanisms
-
-#### 1. Shared Context
-All agents have access to the conversation history:
-```csharp
-public class SharedContextAgent : AssistantAgent
+```json
 {
-    private readonly ConversationHistory _sharedHistory;
-    
-    public SharedContextAgent(ConversationHistory sharedHistory) 
-    {
-        _sharedHistory = sharedHistory;
+  "OpenAI": {
+    "ApiKey": "your-openai-api-key",
+    "Model": "gpt-4o",
+    "BaseUrl": "https://api.openai.com/v1"
+  },
+  "WebBrowsing": {
+    "HeadlessMode": true,
+    "DefaultTimeout": 30000,
+    "MaxRetries": 3,
+    "AllowedDomains": [
+      "wikipedia.org",
+      "github.com",
+      "stackoverflow.com",
+      "docs.microsoft.com"
+    ]
+  },
+  "Agents": {
+    "WebBrowser": {
+      "Name": "WebBrowsingAgent",
+      "Description": "Specializes in web navigation and content extraction",
+      "MaxTokens": 2000
+    },
+    "Researcher": {
+      "Name": "ResearchAgent",
+      "Description": "Analyzes and processes web content for research purposes",
+      "MaxTokens": 1500
+    },
+    "Summarizer": {
+      "Name": "SummarizerAgent",
+      "Description": "Creates concise summaries of research findings",
+      "MaxTokens": 1000
     }
+  }
 }
 ```
 
-#### 2. State Management
-Agents can maintain and share state:
+### Step 3: Creating the WebBrowsing Agent
+
 ```csharp
-public class StatefulAgent : AssistantAgent
+using Microsoft.AutoGen.Agents;
+using Microsoft.Playwright;
+using System.Text.Json;
+
+public class WebBrowsingAgent : IAgent
 {
-    private readonly Dictionary<string, object> _sharedState;
-    
-    public void UpdateState(string key, object value)
+    private readonly IOpenAIClient _openAIClient;
+    private readonly IPlaywright _playwright;
+    private IBrowser? _browser;
+    private IPage? _page;
+    private readonly WebBrowsingConfig _config;
+
+    public WebBrowsingAgent(IOpenAIClient openAIClient, WebBrowsingConfig config)
     {
-        _sharedState[key] = value;
+        _openAIClient = openAIClient;
+        _config = config;
     }
-}
-```
 
-#### 3. Event-Driven Communication
-Agents can react to events from other agents:
-```csharp
-public class EventDrivenAgent : AssistantAgent
-{
-    public event EventHandler<AgentEventArgs> TaskCompleted;
-    
-    protected virtual void OnTaskCompleted(AgentEventArgs e)
+    public async Task InitializeAsync()
     {
-        TaskCompleted?.Invoke(this, e);
-    }
-}
-```
-
-## 🛠 Practical Examples
-
-### Example 1: Code Development Team
-A team of agents working together to develop software:
-
-- **Product Owner**: Defines requirements
-- **Developer**: Writes code
-- **Code Reviewer**: Reviews and suggests improvements
-- **Tester**: Creates test cases
-
-### Example 2: Research Team
-A team conducting research on a topic:
-
-- **Research Lead**: Coordinates research direction
-- **Data Analyst**: Analyzes data and statistics
-- **Writer**: Synthesizes findings into reports
-- **Critic**: Provides critical feedback
-
-### Example 3: Customer Support Team
-A team handling customer inquiries:
-
-- **Intake Agent**: Receives and categorizes requests
-- **Technical Expert**: Handles technical issues
-- **Account Manager**: Manages account-related queries
-- **Escalation Manager**: Handles complex cases
-
-## 🧪 Advanced Topics
-
-### 1. Dynamic Agent Creation
-Create agents on-demand based on requirements:
-
-```csharp
-public class AgentFactory
-{
-    public IAgent CreateAgent(AgentType type, string specialization)
-    {
-        return type switch
+        _playwright = await Playwright.CreateAsync();
+        _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
         {
-            AgentType.Developer => new DeveloperAgent(specialization),
-            AgentType.Reviewer => new ReviewerAgent(specialization),
-            AgentType.Manager => new ManagerAgent(specialization),
-            _ => throw new ArgumentException($"Unknown agent type: {type}")
-        };
+            Headless = _config.HeadlessMode,
+            Args = new[] { "--no-sandbox", "--disable-dev-shm-usage" }
+        });
+        _page = await _browser.NewPageAsync();
+        
+        // Set default timeout
+        _page.SetDefaultTimeout(_config.DefaultTimeout);
     }
-}
-```
 
-### 2. Agent Workflows
-Define complex workflows with multiple stages:
-
-```csharp
-public class WorkflowOrchestrator
-{
-    public async Task<WorkflowResult> ExecuteWorkflow(WorkflowDefinition workflow)
+    public async Task<string> NavigateToUrlAsync(string url)
     {
-        foreach (var stage in workflow.Stages)
+        if (_page == null)
+            throw new InvalidOperationException("Browser not initialized");
+
+        try
         {
-            var stageResult = await ExecuteStage(stage);
-            if (!stageResult.Success)
-            {
-                return new WorkflowResult { Success = false, Error = stageResult.Error };
-            }
+            await _page.GotoAsync(url);
+            await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
+            
+            // Extract page content
+            var title = await _page.TitleAsync();
+            var content = await _page.InnerTextAsync("body");
+            
+            return $"Page Title: {title}\nURL: {url}\nContent: {content}";
         }
-        return new WorkflowResult { Success = true };
+        catch (Exception ex)
+        {
+            return $"Error navigating to {url}: {ex.Message}";
+        }
+    }
+
+    public async Task<string> ExtractContentAsync(string selector)
+    {
+        if (_page == null)
+            throw new InvalidOperationException("Browser not initialized");
+
+        try
+        {
+            var element = await _page.QuerySelectorAsync(selector);
+            return element != null ? await element.InnerTextAsync() : "Element not found";
+        }
+        catch (Exception ex)
+        {
+            return $"Error extracting content: {ex.Message}";
+        }
+    }
+
+    public async Task<byte[]> TakeScreenshotAsync()
+    {
+        if (_page == null)
+            throw new InvalidOperationException("Browser not initialized");
+
+        return await _page.ScreenshotAsync();
+    }
+
+    public async Task DisposeAsync()
+    {
+        if (_browser != null)
+        {
+            await _browser.CloseAsync();
+            _browser.Dispose();
+        }
+        _playwright?.Dispose();
     }
 }
 ```
 
-### 3. Agent Performance Monitoring
-Monitor agent performance and behavior:
+### Step 4: Building the Agent Team
 
 ```csharp
-public class AgentMonitor
+using Microsoft.AutoGen.Agents;
+
+public class WebBrowsingAgentTeam
 {
-    public void MonitorAgent(IAgent agent)
+    private readonly IOpenAIClient _openAIClient;
+    private readonly WebBrowsingAgent _webBrowsingAgent;
+    private readonly ResearchAgent _researchAgent;
+    private readonly SummarizerAgent _summarizerAgent;
+    private readonly RoundRobinGroupChat _groupChat;
+
+    public WebBrowsingAgentTeam(IOpenAIClient openAIClient, WebBrowsingConfig config)
     {
-        agent.MessageSent += (sender, args) => LogMessage(args);
-        agent.MessageReceived += (sender, args) => LogMessage(args);
-        agent.ErrorOccurred += (sender, args) => LogError(args);
+        _openAIClient = openAIClient;
+        _webBrowsingAgent = new WebBrowsingAgent(openAIClient, config);
+        _researchAgent = new ResearchAgent(openAIClient);
+        _summarizerAgent = new SummarizerAgent(openAIClient);
+        
+        // Create group chat with round-robin orchestration
+        _groupChat = new RoundRobinGroupChat(new[]
+        {
+            _webBrowsingAgent,
+            _researchAgent,
+            _summarizerAgent
+        });
+    }
+
+    public async Task<string> ResearchTopicAsync(string topic, string[] urls)
+    {
+        await _webBrowsingAgent.InitializeAsync();
+        
+        var research = new StringBuilder();
+        
+        foreach (var url in urls)
+        {
+            // Navigate and extract content
+            var content = await _webBrowsingAgent.NavigateToUrlAsync(url);
+            
+            // Process with research agent
+            var analysis = await _researchAgent.AnalyzeContentAsync(content, topic);
+            
+            research.AppendLine($"Source: {url}");
+            research.AppendLine($"Analysis: {analysis}");
+            research.AppendLine();
+        }
+        
+        // Summarize findings
+        var summary = await _summarizerAgent.SummarizeAsync(research.ToString());
+        
+        await _webBrowsingAgent.DisposeAsync();
+        
+        return summary;
     }
 }
 ```
 
-## 🎮 Exercises
+### Step 5: Specialized Agents
 
-### Exercise 1: Basic Multi-Agent System
-Create a simple system with three agents:
-- One agent that asks questions
-- One agent that provides answers
-- One agent that evaluates the quality of answers
+```csharp
+public class ResearchAgent : IAgent
+{
+    private readonly IOpenAIClient _openAIClient;
 
-### Exercise 2: Specialized Team
-Build a software development team with:
-- Product Manager (defines requirements)
-- Developer (writes code)
-- QA Engineer (tests code)
-- DevOps Engineer (handles deployment)
+    public ResearchAgent(IOpenAIClient openAIClient)
+    {
+        _openAIClient = openAIClient;
+    }
 
-### Exercise 3: Debate System
-Create a debate system where:
-- Multiple agents argue different sides of an issue
-- A moderator manages the debate
-- A judge evaluates the arguments
+    public async Task<string> AnalyzeContentAsync(string content, string topic)
+    {
+        var prompt = $@"
+        As a research specialist, analyze the following content for information related to '{topic}'.
+        
+        Content: {content}
+        
+        Please provide:
+        1. Key relevant information
+        2. Important facts and figures
+        3. Credibility assessment
+        4. Relevance score (1-10)
+        
+        Focus on accuracy and relevance to the research topic.
+        ";
 
-### Exercise 4: Customer Service Simulation
-Build a customer service system with:
-- Customer (asks questions)
-- Level 1 Support (handles basic issues)
-- Level 2 Support (handles complex issues)
-- Manager (handles escalations)
+        var response = await _openAIClient.GetChatCompletionAsync(prompt);
+        return response.Content;
+    }
+}
 
-## 🔍 Troubleshooting
+public class SummarizerAgent : IAgent
+{
+    private readonly IOpenAIClient _openAIClient;
+
+    public SummarizerAgent(IOpenAIClient openAIClient)
+    {
+        _openAIClient = openAIClient;
+    }
+
+    public async Task<string> SummarizeAsync(string researchData)
+    {
+        var prompt = $@"
+        As a summarization specialist, create a comprehensive summary of the following research data.
+        
+        Research Data: {researchData}
+        
+        Please provide:
+        1. Executive summary (2-3 sentences)
+        2. Key findings (bullet points)
+        3. Sources overview
+        4. Recommendations for further research
+        
+        Keep the summary concise but comprehensive.
+        ";
+
+        var response = await _openAIClient.GetChatCompletionAsync(prompt);
+        return response.Content;
+    }
+}
+```
+
+### Step 6: Main Program
+
+```csharp
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        var host = Host.CreateDefaultBuilder(args)
+            .ConfigureServices((context, services) =>
+            {
+                services.Configure<WebBrowsingConfig>(
+                    context.Configuration.GetSection("WebBrowsing"));
+                services.AddSingleton<IOpenAIClient, OpenAIClient>();
+                services.AddSingleton<WebBrowsingAgentTeam>();
+            })
+            .Build();
+
+        var agentTeam = host.Services.GetRequiredService<WebBrowsingAgentTeam>();
+
+        Console.WriteLine("🌐 WebBrowsing Agent Team - Lab 02");
+        Console.WriteLine("==================================");
+        Console.WriteLine();
+
+        // Example research scenario
+        var topic = "Microsoft AutoGen framework";
+        var urls = new[]
+        {
+            "https://github.com/microsoft/autogen",
+            "https://microsoft.github.io/autogen/",
+            "https://arxiv.org/abs/2308.08155"
+        };
+
+        Console.WriteLine($"🔍 Researching topic: {topic}");
+        Console.WriteLine($"📍 Sources: {string.Join(", ", urls)}");
+        Console.WriteLine();
+
+        try
+        {
+            var result = await agentTeam.ResearchTopicAsync(topic, urls);
+            
+            Console.WriteLine("📊 Research Summary:");
+            Console.WriteLine("===================");
+            Console.WriteLine(result);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"❌ Error: {ex.Message}");
+        }
+
+        Console.WriteLine();
+        Console.WriteLine("Press any key to exit...");
+        Console.ReadKey();
+    }
+}
+```
+
+## 🎯 Exercises
+
+### Exercise 1: Custom Web Scraper
+Create a specialized agent that can:
+- Navigate to a specific website
+- Extract product information
+- Compare prices across multiple sites
+- Generate a comparison report
+
+### Exercise 2: Multi-Modal Content Processing
+Extend the web browsing agent to:
+- Process images found on web pages
+- Extract text from PDFs
+- Handle video content metadata
+- Create rich media summaries
+
+### Exercise 3: Form Interaction
+Build an agent that can:
+- Fill out web forms automatically
+- Submit search queries
+- Handle authentication flows
+- Process form validation errors
+
+### Exercise 4: Real-Time Web Monitoring
+Create a monitoring system that:
+- Tracks changes on specific web pages
+- Sends alerts when content changes
+- Maintains a history of changes
+- Generates trend reports
+
+## 🔍 Deep Dive: RoundRobinGroupChat
+
+The RoundRobinGroupChat orchestrates multiple agents in a predictable sequence:
+
+```csharp
+public class RoundRobinGroupChat
+{
+    private readonly IAgent[] _agents;
+    private int _currentAgentIndex = 0;
+
+    public RoundRobinGroupChat(IAgent[] agents)
+    {
+        _agents = agents;
+    }
+
+    public async Task<string> ProcessMessageAsync(string message)
+    {
+        var results = new List<string>();
+        
+        // Each agent processes in order
+        for (int i = 0; i < _agents.Length; i++)
+        {
+            var agent = _agents[_currentAgentIndex];
+            var result = await agent.ProcessMessageAsync(message);
+            results.Add(result);
+            
+            _currentAgentIndex = (_currentAgentIndex + 1) % _agents.Length;
+            
+            // Use previous agent's output as input for next agent
+            message = result;
+        }
+        
+        return string.Join("\n---\n", results);
+    }
+}
+```
+
+## 🛠 Configuration Models
+
+```csharp
+public class WebBrowsingConfig
+{
+    public bool HeadlessMode { get; set; } = true;
+    public int DefaultTimeout { get; set; } = 30000;
+    public int MaxRetries { get; set; } = 3;
+    public string[] AllowedDomains { get; set; } = Array.Empty<string>();
+}
+
+public class AgentConfig
+{
+    public string Name { get; set; } = "";
+    public string Description { get; set; } = "";
+    public int MaxTokens { get; set; } = 1000;
+}
+```
+
+## 🐛 Troubleshooting
 
 ### Common Issues
 
-#### 1. Agent Conflicts
-When agents provide conflicting information:
-- Implement conflict resolution mechanisms
-- Use voting systems for decisions
-- Designate authoritative agents for specific domains
+1. **Playwright Installation**
+   ```bash
+   # If browsers aren't installing
+   npx playwright install --with-deps
+   ```
 
-#### 2. Infinite Loops
-Prevent agents from talking indefinitely:
-- Set maximum conversation rounds
-- Implement termination conditions
-- Use conversation moderators
+2. **Timeout Issues**
+   ```csharp
+   // Increase timeout for slow pages
+   _page.SetDefaultTimeout(60000);
+   ```
 
-#### 3. Performance Issues
-Optimize multi-agent system performance:
-- Implement efficient message routing
-- Use caching for frequently accessed data
-- Optimize LLM API calls
+3. **Memory Issues**
+   ```csharp
+   // Dispose of browser instances properly
+   await _browser.CloseAsync();
+   _browser.Dispose();
+   ```
 
-#### 4. Context Management
-Handle large conversation contexts:
-- Implement conversation summarization
-- Use selective context retention
-- Implement context compression techniques
+## 📚 Further Reading
 
-## 🏆 Best Practices
+- [Playwright Documentation](https://playwright.dev/dotnet/)
+- [AutoGen Multi-Agent Patterns](https://microsoft.github.io/autogen/docs/topics/groupchat/intro)
+- [Web Scraping Best Practices](https://scrapeops.io/web-scraping-playbook/)
+- [Multi-Modal AI Applications](https://openai.com/research/gpt-4v-system-card)
 
-### 1. Agent Design
-- **Single Responsibility**: Each agent should have a clear, focused role
-- **Clear Communication**: Agents should communicate clearly and concisely
-- **Error Handling**: Implement robust error handling and recovery
-- **State Management**: Maintain consistent state across agents
+## 🎯 Key Takeaways
 
-### 2. System Architecture
-- **Scalability**: Design for scalability from the start
-- **Modularity**: Keep agents loosely coupled
-- **Monitoring**: Implement comprehensive logging and monitoring
-- **Testing**: Create comprehensive test suites for multi-agent interactions
+- **WebBrowsing agents** can automate complex web interactions
+- **RoundRobinGroupChat** provides predictable agent orchestration
+- **Playwright integration** enables robust web automation
+- **Multi-modal processing** handles diverse content types
+- **Error handling** is crucial for reliable web scraping
 
-### 3. Performance Optimization
-- **Batch Processing**: Process multiple messages in batches when possible
-- **Caching**: Cache frequently used data and responses
-- **Load Balancing**: Distribute work across multiple agent instances
-- **Resource Management**: Monitor and manage computational resources
+## 📈 Next Steps
 
-## 📖 Further Reading
-
-### Official Documentation
-- [AutoGen Group Chat](https://microsoft.github.io/autogen/docs/topics/groupchat/overview)
-- [Multi-Agent Conversation](https://microsoft.github.io/autogen/docs/topics/conversation-patterns)
-- [Agent Communication](https://microsoft.github.io/autogen/docs/topics/handling-complex-outputs)
-
-### Research Papers
-- [Multi-Agent Systems in AI](https://arxiv.org/abs/2308.08155)
-- [Coordination in Multi-Agent Systems](https://www.microsoft.com/en-us/research/publication/autogen-enabling-next-gen-llm-applications-via-multi-agent-conversation/)
-
-### Community Resources
-- [Multi-Agent Examples](https://github.com/microsoft/autogen/tree/main/samples)
-- [Best Practices for Multi-Agent Systems](https://microsoft.github.io/autogen/docs/Getting-Started/)
-- [Advanced Multi-Agent Patterns](https://microsoft.github.io/autogen/docs/topics/conversation-patterns)
-
-## 🏆 Lab Completion
-
-You've successfully completed Lab 02 when you can:
-- [x] Create multiple specialized agents
-- [x] Orchestrate multi-agent conversations
-- [x] Implement agent coordination mechanisms
-- [x] Handle complex conversation flows
-- [x] Monitor and debug multi-agent systems
-
-## ➡️ Next Steps
-
-Ready to explore visual agent development? Continue to [Lab 03: AutoGen Studio](../lab03/README.md) to learn how to create multi-agent systems using a visual interface.
+Ready to move on? Head to [Lab 03: Multi-Agent Systems](../lab03/README.md) where you'll explore advanced multi-agent coordination patterns and conversation management.
 
 ---
 
-**Estimated Time**: 60 minutes
-**Difficulty**: Intermediate
-**Prerequisites**: Completed Lab 01
+**🎉 Congratulations!** You've successfully built a WebBrowsing Agent Team with multi-modal capabilities and sophisticated orchestration patterns.

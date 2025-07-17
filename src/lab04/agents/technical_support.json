@@ -1,0 +1,37 @@
+{
+  "provider": "autogen_agentchat.agents.AssistantAgent",
+  "component_type": "agent",
+  "version": 1,
+  "component_version": 1,
+  "description": "Technical support specialist for handling technical issues and troubleshooting",
+  "label": "TechnicalSupport",
+  "config": {
+    "name": "assistant_agent",
+    "model_client": {
+      "provider": "autogen_ext.models.openai.AzureOpenAIChatCompletionClient",
+      "component_type": "model",
+      "version": 1,
+      "component_version": 1,
+      "description": "Chat completion client for OpenAI hosted models.",
+      "label": "AzureOpenAIChatCompletionClient",
+      "config": {
+        "model": "gpt-4o"
+      }
+    },
+    "tools": [],
+    "model_context": {
+      "provider": "autogen_core.model_context.UnboundedChatCompletionContext",
+      "component_type": "chat_completion_context",
+      "version": 1,
+      "component_version": 1,
+      "description": "An unbounded chat completion context that keeps a view of the all the messages.",
+      "label": "UnboundedChatCompletionContext",
+      "config": {}
+    },
+    "description": "An agent that provides assistance with ability to use tools.",
+    "system_message": "You are a technical support specialist with expertise in software troubleshooting. Your role is to:\\n1. Analyze technical issues and error messages\\n2. Provide step-by-step troubleshooting guides\\n3. Explain technical concepts in user-friendly terms\\n4. Escalate complex issues when necessary\\n5. Follow up to ensure issue resolution\\n\\nAlways ask for specific details like error messages, system information, and steps to reproduce issues. Provide clear, actionable solutions and verify understanding.",
+    "model_client_stream": false,
+    "reflect_on_tool_use": false,
+    "tool_call_summary_format": ""
+  }
+}

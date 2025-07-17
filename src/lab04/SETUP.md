@@ -23,19 +23,21 @@
 ## Configuration
 
 1. **Set up API Keys**
-   - Navigate to Settings → Models
-   - Add your OpenAI API key
-   - Or configure Azure OpenAI settings
+   - Navigate to Gallery → Models
+   - click "+ Add Model"
+   - click "JSON Editor"
+   - Use the config from `settings/models.json` as a template (replace the API Key and endpoint with your own)
+   - Save the configuration
+   - Click "Test" to verify the connection
 
 2. **Import Agent Configurations**
-   - Go to Agents section
-   - Click "Import Agent"
-   - Upload the JSON files from the `agents/` folder
-
-3. **Import Workflows**
-   - Go to Workflows section
-   - Click "Import Workflow"
-   - Upload the JSON files from the `workflows/` folder
+   - Go to Agents section in the Gallery
+   - Click "+ Add Agent"
+   - For each agent in the `agents/` folder:
+     - Click "JSON Editor"
+     - Copy the content from the agent's JSON file
+     - Paste it into the editor
+     - Save the agent configuration
 
 ## Quick Start
 

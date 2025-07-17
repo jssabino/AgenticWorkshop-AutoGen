@@ -1,22 +1,26 @@
-using Microsoft.AutoGen.Abstractions;
-using Microsoft.AutoGen.Agents;
-using Microsoft.AutoGen.OpenAI;
+using AutoGen;
+using AutoGen.Core;
+using AutoGen.AzureAIInference;
+using AutoGen.AzureAIInference.Extension;
+using Azure.AI.Inference;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using DotNetEnv;
 
-namespace Lab02;
+namespace Lab03;
 
 class Program
 {
     static async Task Main(string[] args)
     {
         // Load environment variables from .env file
-        Env.Load();
-        
-        Console.WriteLine("🚀 AutoGen Lab 02: Multi-Agent Systems");
+        var root = Directory.GetCurrentDirectory();
+        var dotenv = Path.Combine(root, ".env");
+        Env.Load(dotenv);
+
+        Console.WriteLine("🚀 AutoGen Lab 03: Multi-Agent Systems");
         Console.WriteLine("======================================");
         
         try
@@ -36,7 +40,7 @@ class Program
             Console.WriteLine("\n💡 Make sure you have set your OpenAI API key in the .env file");
         }
         
-        Console.WriteLine("\n👋 Thanks for trying AutoGen Lab 02!");
+        Console.WriteLine("\n👋 Thanks for trying AutoGen Lab 03!");
     }
     
     static async Task RunScenarioMenu(MultiAgentService service)
@@ -106,22 +110,39 @@ public class MultiAgentService
 {
     private readonly ILogger<MultiAgentService> _logger;
     private readonly string _apiKey;
-    
+    private readonly string _apiEndpoint;
+    private readonly string _apiModelName;
+    private readonly ChatCompletionsClient _client;
+    private readonly ChatCompletionsOptions _modelOptions;
+
     public MultiAgentService(ILogger<MultiAgentService> logger)
     {
         _logger = logger;
-        _apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY") 
+        _apiKey = Environment.GetEnvironmentVariable("AZURE_OPENAI_API_KEY")
             ?? throw new InvalidOperationException("OpenAI API key not found.");
+        _apiEndpoint = Environment.GetEnvironmentVariable("AZURE_OPENAI_ENDPOINT")
+            ?? throw new InvalidOperationException("OpenAI API endpoint not found.");
+        _apiModelName = Environment.GetEnvironmentVariable("DEFAULT_MODEL")
+            ?? throw new InvalidOperationException("OpenAI API model name not found.");
+
+        _client = new ChatCompletionsClient(new Uri(_apiEndpoint), new Azure.AzureKeyCredential(_apiKey));
+        
+        _modelOptions = new ChatCompletionsOptions()
+        {
+            Model = _apiModelName,
+            Temperature = 0.7f,
+        };
     }
-    
+
     public async Task RunSoftwareDevelopmentTeam()
     {
         Console.WriteLine("\n💻 Software Development Team Scenario");
         Console.WriteLine("=====================================");
-        
+
         // Create specialized agents
-        var productOwner = new OpenAIChatAgent(
-            chatClient: new OpenAI.Chat.ChatClient("gpt-4", _apiKey),
+        var productOwner = new ChatCompletionsClientAgent(
+            chatCompletionsClient: _client,
+            modelName: _apiModelName,
             name: "ProductOwner",
             systemMessage: """
                 You are a Product Owner responsible for defining software requirements.
@@ -130,9 +151,10 @@ public class MultiAgentService
                 Be concise and focus on the 'what' and 'why' rather than the 'how'.
                 """
         );
-        
-        var developer = new OpenAIChatAgent(
-            chatClient: new OpenAI.Chat.ChatClient("gpt-4", _apiKey),
+
+        var developer = new ChatCompletionsClientAgent(
+            chatCompletionsClient: _client,
+            modelName: _apiModelName,
             name: "Developer",
             systemMessage: """
                 You are a Senior Software Developer specialized in C#.
@@ -141,9 +163,10 @@ public class MultiAgentService
                 You suggest technical solutions and explain your reasoning.
                 """
         );
-        
-        var codeReviewer = new OpenAIChatAgent(
-            chatClient: new OpenAI.Chat.ChatClient("gpt-4", _apiKey),
+
+        var codeReviewer = new ChatCompletionsClientAgent(
+            chatCompletionsClient: _client,
+            modelName: _apiModelName,
             name: "CodeReviewer",
             systemMessage: """
                 You are a Senior Code Reviewer focused on code quality.
@@ -152,9 +175,10 @@ public class MultiAgentService
                 You approve code only when it meets high standards.
                 """
         );
-        
-        var tester = new OpenAIChatAgent(
-            chatClient: new OpenAI.Chat.ChatClient("gpt-4", _apiKey),
+
+        var tester = new ChatCompletionsClientAgent(
+            chatCompletionsClient: _client,
+            modelName: _apiModelName,
             name: "Tester",
             systemMessage: """
                 You are a QA Engineer responsible for testing software.
@@ -163,19 +187,26 @@ public class MultiAgentService
                 You verify that implementations match requirements.
                 """
         );
-        
+
         // Simulate a software development workflow
         var task = "Create a simple calculator application with basic arithmetic operations";
-        
+
         Console.WriteLine($"📋 Task: {task}");
         Console.WriteLine("\n🔄 Starting development workflow...");
-        
+
         // Step 1: Product Owner defines requirements
         Console.WriteLine("\n👤 Product Owner - Defining Requirements:");
         var requirementsResponse = await productOwner.GenerateReplyAsync(
-            new List<IMessage> { new TextMessage(Role.User, 
-                $"Please define detailed requirements for: {task}") }
+            [
+            new TextMessage(Role.Assistant, "Hello", from: "user"),
+            new TextMessage(Role.Assistant, "Hello", from: "user2"),
+            new TextMessage(Role.Assistant, "Hello", from: "user3"),
+            new TextMessage(Role.Assistant, "Hello", from: "user4")]
         );
+
+            //new List<IMessage> { new TextMessage(Role.User,
+            //    $"Please define detailed requirements for: {task}") }
+        //);
         Console.WriteLine($"📝 {requirementsResponse.GetContent()}");
         
         // Step 2: Developer implements solution
@@ -217,8 +248,9 @@ public class MultiAgentService
         Console.WriteLine("\n🔬 Research Team Scenario");
         Console.WriteLine("=========================");
         
-        var researchLead = new OpenAIChatAgent(
-            chatClient: new OpenAI.Chat.ChatClient("gpt-4", _apiKey),
+        var researchLead = new ChatCompletionsClientAgent(
+            chatCompletionsClient: _client,
+            modelName: _apiModelName,
             name: "ResearchLead",
             systemMessage: """
                 You are a Research Lead coordinating research projects.
@@ -228,8 +260,9 @@ public class MultiAgentService
                 """
         );
         
-        var dataAnalyst = new OpenAIChatAgent(
-            chatClient: new OpenAI.Chat.ChatClient("gpt-4", _apiKey),
+        var dataAnalyst = new ChatCompletionsClientAgent(
+            chatCompletionsClient: _client,
+            modelName: _apiModelName,
             name: "DataAnalyst",
             systemMessage: """
                 You are a Data Analyst specializing in statistical analysis.
@@ -239,8 +272,9 @@ public class MultiAgentService
                 """
         );
         
-        var writer = new OpenAIChatAgent(
-            chatClient: new OpenAI.Chat.ChatClient("gpt-4", _apiKey),
+        var writer = new ChatCompletionsClientAgent(
+            chatCompletionsClient: _client,
+            modelName: _apiModelName,
             name: "Writer",
             systemMessage: """
                 You are a Research Writer specializing in technical communication.
@@ -290,8 +324,9 @@ public class MultiAgentService
         Console.WriteLine("\n🎧 Customer Support Team Scenario");
         Console.WriteLine("==================================");
         
-        var intakeAgent = new OpenAIChatAgent(
-            chatClient: new OpenAI.Chat.ChatClient("gpt-4", _apiKey),
+        var intakeAgent = new ChatCompletionsClientAgent(
+            chatCompletionsClient: _client,
+            modelName: _apiModelName,
             name: "IntakeAgent",
             systemMessage: """
                 You are a Customer Support Intake Agent.
@@ -301,8 +336,9 @@ public class MultiAgentService
                 """
         );
         
-        var technicalExpert = new OpenAIChatAgent(
-            chatClient: new OpenAI.Chat.ChatClient("gpt-4", _apiKey),
+        var technicalExpert = new ChatCompletionsClientAgent(
+            chatCompletionsClient: _client,
+            modelName: _apiModelName,
             name: "TechnicalExpert",
             systemMessage: """
                 You are a Technical Support Expert.
@@ -341,8 +377,9 @@ public class MultiAgentService
         Console.WriteLine("\n🗣️ Debate System Scenario");
         Console.WriteLine("=========================");
         
-        var debaterA = new OpenAIChatAgent(
-            chatClient: new OpenAI.Chat.ChatClient("gpt-4", _apiKey),
+        var debaterA = new ChatCompletionsClientAgent(
+            chatCompletionsClient: _client,
+            modelName: _apiModelName,
             name: "DebaterA",
             systemMessage: """
                 You are a skilled debater arguing FOR the proposition.
@@ -352,8 +389,9 @@ public class MultiAgentService
                 """
         );
         
-        var debaterB = new OpenAIChatAgent(
-            chatClient: new OpenAI.Chat.ChatClient("gpt-4", _apiKey),
+        var debaterB = new ChatCompletionsClientAgent(
+            chatCompletionsClient: _client,
+            modelName: _apiModelName,
             name: "DebaterB",
             systemMessage: """
                 You are a skilled debater arguing AGAINST the proposition.
@@ -363,8 +401,9 @@ public class MultiAgentService
                 """
         );
         
-        var moderator = new OpenAIChatAgent(
-            chatClient: new OpenAI.Chat.ChatClient("gpt-4", _apiKey),
+        var moderator = new ChatCompletionsClientAgent(
+            chatCompletionsClient: _client,
+            modelName: _apiModelName,
             name: "Moderator",
             systemMessage: """
                 You are a neutral debate moderator.
@@ -418,26 +457,4 @@ public class MultiAgentService
         
         Console.WriteLine("\n🎉 Debate completed!");
     }
-}
-
-// Helper classes
-public class TextMessage : IMessage
-{
-    public Role Role { get; }
-    public string Content { get; }
-    
-    public TextMessage(Role role, string content)
-    {
-        Role = role;
-        Content = content;
-    }
-    
-    public string GetContent() => Content;
-}
-
-public enum Role
-{
-    User,
-    Assistant,
-    System
 }
