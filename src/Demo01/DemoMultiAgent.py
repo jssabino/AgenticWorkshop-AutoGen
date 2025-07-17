@@ -25,5 +25,5 @@ user_proxy = UserProxyAgent(
 # Start the chat
 user_proxy.initiate_chat(
     assistant,
-    message="Plot a chart of NVDA and TESLA stock price change YTD.",
+    message="Plot a chart of NVDA and TESLA stock price change YTD. and save the chart as a PNG file.",
 )
